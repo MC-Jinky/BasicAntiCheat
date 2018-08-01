@@ -1,0 +1,83 @@
+#
+#   _____  ______  _   _  _____ __   __
+#  / ____||  ____|| \ | ||_   _|\ \ / /
+# | |     | |__   |  \| |  | |   \ V / 
+# | |     |  __|  | . ` |  | |    > <  
+# | |____ | |____ | |\  | _| |_  / . \ 
+#  \_____||______||_| \_||_____|/_/ \_\
+#                                      
+#                                      
+
+# This is for automatic command execution when a player reaches a certain amount of offenses.
+# List of available replacements to use in the command:
+# [USERNAME], [UUID], [DISPLAYNAME], [OFFENSES], [REPORTID] (if reports:true)
+# Color codes are supported.
+punish: false
+#
+# The amount of offenses the user has to reach before the punishment is executed
+#
+punish-offense-count: 5
+punish-command: 'tempban [USERNAME] [OFFENSES]'
+
+#
+# This will log a bunch of user data before the punish command is executed, can be useful
+# to tell between cheating or false calls
+#
+log-reports: true
+
+#
+#This will log all offenses to an offenses.txt file in the plugin directory
+#They will be timestamped with the timezone specified
+#
+log-offenses: true
+
+#
+# This is the threshold that when met, all anticheat calls will be ignored,
+# false calls CAN happen when the server does lag, so it's good not to 
+# fiddle with this setting too much
+#
+tps-lag-threshold: 17.5
+
+
+#
+# The amount of time (in seconds) that each offense will expire in
+#
+offense-expire-time: 180
+
+#
+# Prefix for all messages
+#
+prefix: '&2Cenix:&r'
+#
+# Main variable color, such as the offense or player name in messages
+#
+variable-color: '&a'
+#
+# The message that is shown when someone receives an offense (suspicion)
+#
+suspicion-alert: '[VARIABLE_COLOR][DISPLAYNAME] &freceived suspicion for [VARIABLE_COLOR][SUSPICION]&f. (&6[COUNT]&r)'
+#
+# The message that is shown when someone receives an offense, but is ignored because of lag (suspicion)
+#
+suspicion-alert-ignore-tps: '[VARIABLE_COLOR][DISPLAYNAME] &freceived suspicion for [VARIABLE_COLOR][SUSPICION]&f, but it''s being ignored because of bad TPS ([TPS])'
+#
+# The message that is shown when a report is saved
+#
+report-saved-alert: '&fReport for [VARIABLE_COLOR][DISPLAYNAME] &fsaved. ([VARIABLE_COLOR]#[REPORT_ID]&f)'
+
+#
+# The timezone for the offenses.txt log
+#
+timezone: 'America/New_York'
+
+#
+# Plugin version, don't touch this.
+#
+version: '0.4'
+#
+#
+#Reports are saved below
+#
+#Yeah I know, there is a LOT better ways of storing this information, and I'm working on switching over to a different
+#storage solution soon.
+#
