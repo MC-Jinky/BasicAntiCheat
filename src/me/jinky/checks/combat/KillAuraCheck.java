@@ -33,6 +33,7 @@ import me.jinky.packets.WrapperPlayServerEntityDestroy;
 import me.jinky.packets.WrapperPlayServerNamedEntitySpawn;
 import me.jinky.packets.WrapperPlayServerPlayerInfo;
 import me.jinky.util.NameGenerator;
+import me.jinky.util.VersionUtil;
 
 public class KillAuraCheck extends Check {
 
@@ -159,10 +160,14 @@ public class KillAuraCheck extends Check {
 			i.setAction(PlayerInfoAction.ADD_PLAYER);
 			e.setPlayerUUID(uuid);
 			e.setEntityID(entID);
-			e.setX(location.getX());
-			e.setZ(location.getZ());
-			e.setPosition(location.toVector());
 
+			if (!VersionUtil.isPlus19()) {
+				e.setX(location.getX());
+				e.setY(location.getY());
+				e.setZ(location.getZ());
+			} else {
+				e.setPosition(location.toVector());
+			}
 			i.sendPacket(p);
 			e.sendPacket(p);
 			ei.sendPacket(p);

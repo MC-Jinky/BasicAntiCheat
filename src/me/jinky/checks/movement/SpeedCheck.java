@@ -43,17 +43,17 @@ public class SpeedCheck extends Check {
 		Integer Count = 0;
 		Player p = u.getPlayer();
 		double Offset = 0;
+		double Limit = 0.74;
 		if (this.SpeedTicks.containsKey(p)) {
-			double Limit = 0.74;
 			if (event.getFrom().getY() > event.getTo().getY()) {
 				Offset = UtilMath.offset2d(event.getFrom(), event.getTo());
 			} else {
 				Offset = UtilMath.offset(event.getFrom(), event.getTo());
 			}
 
-			if (VersionUtil.isFlying(p) || u.isBouncing() || u.isFalling())
-				return new CheckResult("Speed", true);
-
+			if (VersionUtil.isFlying(p) || u.isBouncing() || u.isFalling()) {
+				return new CheckResult("Fly / Speed", true);
+			}
 			if (UtilBlock.onBlock(p)) {
 				Limit = 0.48;
 			}
@@ -64,9 +64,9 @@ public class SpeedCheck extends Check {
 			if (Limit < 0.74 && UtilBlock.getBlockAbove(p).getType() != Material.AIR) {
 				Limit = 0.74;
 			}
-			if (PlayerLogger.getLogger().getLastElytraFly(p) != null) {
+			if (PlayerLogger.getLogger().getLastElytraFly(p) != -1L) {
 				if (PlayerLogger.getLogger().getLastElytraFly(p) < 150) {
-					return new CheckResult("Speed", true);
+					return new CheckResult("Fly / Speed", true);
 				}
 			}
 			Material on = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
@@ -86,7 +86,9 @@ public class SpeedCheck extends Check {
 			 */
 			for (PotionEffect e : p.getActivePotionEffects()) {
 				if (e.getType().equals(PotionEffectType.SPEED)) {
-					if (p.isOnGround()) {
+					if (UtilBlock.onStairs(p)) {
+						Limit += 0.14D * (e.getAmplifier() + 1);
+					} else if (p.isOnGround()) {
 						Limit += 0.08D * (e.getAmplifier() + 1);
 					} else {
 						Limit += 0.04D * (e.getAmplifier() + 1);
@@ -102,26 +104,32 @@ public class SpeedCheck extends Check {
 				Count = 0;
 			}
 		}
+
 		if (Count > 6) {
 			Map<Integer, Long> R = new HashMap<Integer, Long>();
 			R.put(3, System.currentTimeMillis());
 			SpeedTicks.put(p, R);
 			if (!UtilBlock.onBlock(p)) {
 				if (event.getTo().getY() == event.getFrom().getY()) {
-					return new CheckResult("Fly / Speed (Hover)", false);
+					return new CheckResult(
+							"Fly / Speed (Hover) (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")",
+							false);
 				} else if (event.getTo().getY() > event.getFrom().getY()) {
-					return new CheckResult("Fly / Speed (Rise)", false);
+					return new CheckResult(
+							"Fly / Speed (Rise) (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")",
+							false);
 				} else {
-					return new CheckResult("Fly (Speed)", false);
+					return new CheckResult("Speed (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")",
+							false);
 				}
 			}
-			return new CheckResult("Speed (" + UtilMath.trim(2, Offset) + ")", false);
+			return new CheckResult("Speed (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")", false);
 		} else {
 			Map<Integer, Long> R = new HashMap<Integer, Long>();
 			R.put(Count, System.currentTimeMillis());
 			SpeedTicks.put(p, R);
 		}
-		return null;
+		return new CheckResult("Fly / Speed", true);
 	}
 
 }
