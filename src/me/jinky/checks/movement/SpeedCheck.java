@@ -111,19 +111,14 @@ public class SpeedCheck extends Check {
 			SpeedTicks.put(p, R);
 			if (!UtilBlock.onBlock(p)) {
 				if (event.getTo().getY() == event.getFrom().getY()) {
-					return new CheckResult(
-							"Fly / Speed (Hover) (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")",
-							false);
+					return new CheckResult("Fly / Speed (Hover)", false);
 				} else if (event.getTo().getY() > event.getFrom().getY()) {
-					return new CheckResult(
-							"Fly / Speed (Rise) (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")",
-							false);
+					return new CheckResult("Fly / Speed (Rise)", false);
 				} else {
-					return new CheckResult("Speed (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")",
-							false);
+					return new CheckResult("Speed", false);
 				}
 			}
-			return new CheckResult("Speed (" + UtilMath.trim(2, Offset) + ">" + UtilMath.trim(2, Limit) + ")", false);
+			return new CheckResult("Speed", false);
 		} else {
 			Map<Integer, Long> R = new HashMap<Integer, Long>();
 			R.put(Count, System.currentTimeMillis());
