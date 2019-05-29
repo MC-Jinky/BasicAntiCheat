@@ -22,7 +22,7 @@ public class BoatCheck extends Check {
 
 	@Override
 	public CheckResult performCheck(User u, Event e) {
-		if (u.getBlock().isLiquid() || u.getBlock().getType() == Material.CARPET)
+		if (u.getBlock().isLiquid() || u.getBlock().getType().toString().toLowerCase().contains("carpet"))
 			return new CheckResult("Fly (Boat)", true);
 
 		if (u.InVehicle() && u.getVehicle().getType() == EntityType.BOAT) {

@@ -2,8 +2,6 @@ package me.jinky.raytrace;
 
 import java.util.ArrayList;
 
-import org.bukkit.Effect;
-import org.bukkit.World;
 import org.bukkit.util.Vector;
 
 public class RayTrace {
@@ -96,13 +94,6 @@ public class RayTrace {
 			return false;
 		}
 		return true;
-	}
-
-	@SuppressWarnings("deprecation")
-	public void highlight(World world, double blocksAway, double accuracy) {
-		for (Vector position : traverse(blocksAway, accuracy)) {
-			world.playEffect(position.toLocation(world), Effect.COLOURED_DUST, 0);
-		}
 	}
 
 }

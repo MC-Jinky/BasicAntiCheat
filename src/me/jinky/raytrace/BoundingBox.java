@@ -1,10 +1,10 @@
 package me.jinky.raytrace;
 
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
-import net.minecraft.server.v1_12_R1.AxisAlignedBB;
+import net.minecraft.server.v1_13_R2.AxisAlignedBB;
 
 public class BoundingBox {
 
@@ -19,13 +19,13 @@ public class BoundingBox {
 
 	BoundingBox(Entity entity) {
 		AxisAlignedBB bb = ((CraftEntity) entity).getHandle().getBoundingBox();
-		min = new Vector(bb.a, bb.b, bb.c);
-		max = new Vector(bb.d, bb.e, bb.f);
+		min = new Vector(bb.minX, bb.minY, bb.minZ);
+		max = new Vector(bb.maxX, bb.maxY, bb.maxZ);
 	}
 
 	BoundingBox(AxisAlignedBB bb) {
-		min = new Vector(bb.a, bb.b, bb.c);
-		max = new Vector(bb.d, bb.e, bb.f);
+		min = new Vector(bb.minX, bb.minY, bb.minZ);
+		max = new Vector(bb.maxX, bb.maxY, bb.maxZ);
 	}
 
 	public Vector midPoint() {

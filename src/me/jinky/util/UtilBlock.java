@@ -144,7 +144,7 @@ public class UtilBlock {
 
 		for (int x = xMin; x <= xMax; x++) {
 			for (int z = zMin; z <= zMax; z++) {
-				if (loc.add(x, 0, z).getBlock().getType() == Material.WATER_LILY) {
+				if (loc.add(x, 0, z).getBlock().getType() == Material.LILY_PAD) {
 					return true;
 				}
 				if ((loc.add(x, -0.5D, z).getBlock().getType() != Material.AIR)

@@ -1,5 +1,6 @@
 name: Cenix
-version: [BETA 0.8]
+version: 1.0
 author: [Jinky]
 main: me.jinky.Cenix
 depend: [ProtocolLib]
+api-version: 1.13

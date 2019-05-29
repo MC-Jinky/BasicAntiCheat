@@ -56,7 +56,7 @@ public class PlaceCheck extends Check {
 			R.put(PlaceCount.get(p).keySet().iterator().next(), Count);
 		}
 		PlaceCount.put(p, R);
-		if (Count > 9 && !VersionUtil.hasEfficiency(p)) {
+		if (Count > 10 && !VersionUtil.hasEfficiency(p)) {
 			event.setCancelled(true);
 			return new CheckResult("Fast Place (" + Count + "bps)", false);
 		}

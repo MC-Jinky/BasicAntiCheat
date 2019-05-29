@@ -16,7 +16,6 @@ import java.util.TimeZone;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -269,7 +268,8 @@ public class Cenix extends JavaPlugin implements Listener {
 					r.add("Bouncing: " + "[VC]" + (PlayerLogger.getLogger().isBouncing(p) ? "Yes" : "No"));
 					r.add("Flying: " + "[VC]" + (p.isFlying() ? "Yes" : "No"));
 					r.add("GameMode: " + "[VC]" + p.getGameMode().toString().toLowerCase());
-					r.add("[INACCURATE] Ping: " + "[VC]" + ((CraftPlayer) p).getHandle().ping / 2);
+					r.add("[INACCURATE] Ping: " + "[VC]"
+							+ ((org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer) p).getHandle().ping / 2);
 					r.add("Potion Effects: " + "[VC]" + (p.getActivePotionEffects().size() != 0 ? "Yes" : "No"));
 					for (PotionEffect eff : p.getActivePotionEffects()) {
 						r.add("  §f- " + "[VC]" + eff.getType().getName() + " (x" + eff.getAmplifier() + ")");

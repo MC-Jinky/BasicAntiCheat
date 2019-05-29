@@ -13,7 +13,6 @@ import me.jinky.Cenix;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
-import me.jinky.util.VersionUtil;
 
 public class MultiAuraCheck extends Check {
 
@@ -37,10 +36,8 @@ public class MultiAuraCheck extends Check {
 		Location hit = event.getEntity().getLocation();
 		String ret = null;
 		Player p = u.getPlayer();
-		if (VersionUtil.isPlus19()) {
-			if (event.getCause() == DamageCause.ENTITY_SWEEP_ATTACK) {
-				return null;
-			}
+		if (event.getCause() == DamageCause.ENTITY_SWEEP_ATTACK) {
+			return null;
 		}
 		if (LastHit.containsKey(p)) {
 			long time = System.currentTimeMillis() - LastHit.get(p).keySet().iterator().next();

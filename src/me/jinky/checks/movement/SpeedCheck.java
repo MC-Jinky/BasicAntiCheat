@@ -55,10 +55,10 @@ public class SpeedCheck extends Check {
 				return new CheckResult("Fly / Speed", true);
 			}
 			if (UtilBlock.onBlock(p)) {
-				Limit = 0.48;
+				Limit = 0.50;
 			}
 			if (UtilBlock.onStairs(p)) {
-				Limit = 0.48;
+				Limit = 0.50;
 			}
 
 			if (Limit < 0.74 && UtilBlock.getBlockAbove(p).getType() != Material.AIR) {

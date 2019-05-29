@@ -85,6 +85,7 @@ public class Settings {
 		TIMEZONE = cf.getString("timezone");
 
 		File offenses = new File(c.getDataFolder(), "offenses.txt");
+		c.saveConfig();
 		if (Settings.LOG_OFFENSES) {
 			if (!offenses.exists()) {
 				try {

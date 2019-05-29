@@ -14,18 +14,8 @@ public class VersionUtil {
 		return Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
 	}
 
-	private static final EnumSet<Material> MOVE_UP_BLOCKS_1_8 = EnumSet.of(Material.ACACIA_STAIRS,
-			Material.BIRCH_WOOD_STAIRS, Material.BRICK_STAIRS, Material.COBBLESTONE_STAIRS, Material.DARK_OAK_STAIRS,
-			Material.JUNGLE_WOOD_STAIRS, Material.NETHER_BRICK_STAIRS, Material.QUARTZ_STAIRS,
-			Material.RED_SANDSTONE_STAIRS, Material.SANDSTONE_STAIRS, Material.SMOOTH_STAIRS,
-			Material.SPRUCE_WOOD_STAIRS, Material.WOOD_STAIRS);
-
 	public static boolean isFlying(Player p) {
-		if (isPlus19()) {
-			return p.isFlying() || p.isGliding() || p.hasPotionEffect(NMS_1_9_PLUS.LEVITATION);
-		} else {
-			return p.isFlying();
-		}
+		return p.isFlying() || p.isGliding() || p.hasPotionEffect(NMS_1_9_PLUS.LEVITATION);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -55,12 +45,7 @@ public class VersionUtil {
 	}
 
 	public static EnumSet<Material> getMoveUpBlocks() {
-		if (getVersion().startsWith("v1_9") || getVersion().startsWith("v1_10") || getVersion().startsWith("v1_11")
-				|| getVersion().startsWith("v1_12")) {
-			return NMS_1_9_PLUS.MOVE_UP_BLOCKS_1_9;
-		} else {
-			return MOVE_UP_BLOCKS_1_8;
-		}
+		return NMS_1_9_PLUS.MOVE_UP_BLOCKS_1_9;
 	}
 
 	public static boolean isNewYSpeed() {

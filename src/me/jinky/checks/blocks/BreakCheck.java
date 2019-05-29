@@ -17,7 +17,6 @@ import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
 import me.jinky.raytrace.RayTrace;
-import me.jinky.util.BlockHardness;
 import me.jinky.util.VersionUtil;
 
 public class BreakCheck extends Check {
@@ -43,15 +42,12 @@ public class BreakCheck extends Check {
 		Boolean instant = false;
 		Material m = event.getBlock().getType();
 		try {
-			if (BlockHardness.hasBlockHardness(event.getBlock().getType())) {
-				if (BlockHardness.getHardness(event.getBlock().getType()).getHardness() <= 0.1D) {
-					instant = true;
-				}
+			if (m.getHardness() <= 0.1D) {
+				instant = true;
 			}
 		} catch (Exception ex) {
-
 		}
-		if (p.getGameMode() == GameMode.CREATIVE || m == Material.SLIME_BLOCK || m == Material.NETHER_WARTS) {
+		if (p.getGameMode() == GameMode.CREATIVE) {
 			instant = true;
 		}
 
@@ -89,7 +85,7 @@ public class BreakCheck extends Check {
 			ArrayList<Vector> positions = rayTrace.traverse(6, 1.5);
 			Boolean call = true;
 			for (Vector v : positions) {
-				if (v.toLocation(placed.getWorld()).distance(placed) < 2) {
+				if (v.toLocation(placed.getWorld()).distance(placed) < 3) {
 					call = false;
 					break;
 				}
