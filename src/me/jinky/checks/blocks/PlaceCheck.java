@@ -1,6 +1,5 @@
 package me.jinky.checks.blocks;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,13 +7,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.util.Vector;
 
 import me.jinky.Cenix;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
-import me.jinky.raytrace.RayTrace;
 import me.jinky.util.VersionUtil;
 
 public class PlaceCheck extends Check {
@@ -61,14 +58,9 @@ public class PlaceCheck extends Check {
 			return new CheckResult("Fast Place (" + Count + "bps)", false);
 		}
 		Location placed = event.getBlockPlaced().getLocation();
-		RayTrace rayTrace = new RayTrace(p.getEyeLocation().toVector(), p.getEyeLocation().getDirection());
-		ArrayList<Vector> positions = rayTrace.traverse(6, 1.5);
-		Boolean call = true;
-		for (Vector v : positions) {
-			if (v.toLocation(placed.getWorld()).distance(placed) < 3.2) {
-				call = false;
-				break;
-			}
+		Boolean call = false;
+		if (placed.distance(p.getTargetBlock(10).getLocation()) > 2.5) {
+			call = true;
 		}
 		if (call) {
 			return new CheckResult("Impossible Place (Not in LoS)", false);

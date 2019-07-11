@@ -11,11 +11,12 @@ import net.md_5.bungee.api.ChatColor;
 
 public class Settings {
 
+	public static boolean ENABLED = true;
 	public static boolean PUNISH = false;
 	public static int PUNISH_OFFENSE_COUNT = 5;
 	public static String PUNISH_COMMAND = "";
 
-	public static boolean LOG_REPORTS = true;
+	public static boolean LOG_REPORTS = false;
 	public static boolean LOG_OFFENSES = true;
 
 	public static int OFFENSE_EXPIRE_TIME = 180;
@@ -25,6 +26,7 @@ public class Settings {
 	public static String VARIABLE_COLOR = "§a";
 	public static String SUSPICION_ALERT = "[VARIABLE_COLOR] [DISPLAYNAME] §freceived suspicion for §6[SUSPICION]§f. ([COUNT])";
 	public static String SUSPICION_ALERT_IGNORE_TPS = "[VARIABLE_COLOR] [DISPLAYNAME] §freceived suspicion for §6[SUSPICION]§f, but it's being ignored because of bad TPS ([TPS])";
+	public static String SUSPICION_ALERT_IGNORE_PING = "[VARIABLE_COLOR] [DISPLAYNAME] §freceived suspicion for §6[SUSPICION]§f, but it's being ignored because of bad TPS ([TPS])";
 	public static String REPORT_SAVED_ALERT = "§fReport for [VARIABLE_COLOR][DISPLAYNAME] §fsaved. ([VARIABLE_COLOR][REPORT_ID]§f)";
 
 	public static String TIMEZONE = "America/New_York";
@@ -36,6 +38,12 @@ public class Settings {
 		FileConfiguration cf = c.getConfig();
 		PREFIX = ChatColor.translateAlternateColorCodes('&', cf.getString("prefix"));
 		c.console("§2Loading configuration...");
+		try {
+			ENABLED = Boolean.parseBoolean(cf.getString("enabled"));
+		} catch (Exception e) {
+			c.console("§cThere was a problem loading the configuration!");
+			c.console("§c'enabled' is not a valid boolean! Defaulting to " + ENABLED + ".");
+		}
 		try {
 			PUNISH = Boolean.parseBoolean(cf.getString("punish"));
 		} catch (Exception e) {
@@ -63,12 +71,6 @@ public class Settings {
 			c.console("§c'log-reports' is not a valid boolean! Defaulting to " + LOG_REPORTS + ".");
 		}
 		try {
-			LOG_OFFENSES = Boolean.parseBoolean(cf.getString("log-offenses"));
-		} catch (Exception e) {
-			c.console("§cThere was a problem loading the configuration!");
-			c.console("§c'log-offenses' is not a valid boolean! Defaulting to " + LOG_OFFENSES + ".");
-		}
-		try {
 			OFFENSE_EXPIRE_TIME = Integer.parseInt(cf.getString("offense-expire-time"));
 		} catch (Exception e) {
 			c.console("§cThere was a problem loading the configuration!");
@@ -81,6 +83,12 @@ public class Settings {
 		if (SUSPICION_ALERT_IGNORE_TPS.toUpperCase().contains("[COUNT]")) {
 			c.console(
 					"§eWarning: The 'suspicion-alert-ignore-tps' message has the [COUNT] variable defined, but the count isn't active in this message, it will be blank.");
+		}
+		SUSPICION_ALERT_IGNORE_PING = ChatColor.translateAlternateColorCodes('&',
+				cf.getString("suspicion-alert-ignore-ping"));
+		if (SUSPICION_ALERT_IGNORE_PING.toUpperCase().contains("[COUNT]")) {
+			c.console(
+					"§eWarning: The 'suspicion-alert-ignore-ping' message has the [COUNT] variable defined, but the count isn't active in this message, it will be blank.");
 		}
 		TIMEZONE = cf.getString("timezone");
 

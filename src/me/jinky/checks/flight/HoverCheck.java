@@ -33,7 +33,7 @@ public class HoverCheck extends Check {
 			if (!UtilBlock.onBlock(p) && p.getLocation().getY() == HoverTicks.get(p).values().iterator().next()) {
 				Count++;
 				for (Block b : UtilBlock.getSurrounding(p.getLocation().getBlock(), true)) {
-					if (b.getType() != Material.AIR) {
+					if (b.getType() != Material.AIR && p.getLocation().distance(b.getLocation()) < 1.25) {
 						Count = 0;
 					}
 				}
@@ -44,14 +44,14 @@ public class HoverCheck extends Check {
 			R.put(0, p.getLocation().getY());
 			HoverTicks.put(p, R);
 			Cenix.getCenix().addExemptionBlock(p, 20);
-			return new CheckResult("Fly (Hover)", false);
+			return new CheckResult("Fly", false);
 		} else {
 			Map<Integer, Double> R = new HashMap<Integer, Double>();
 			if (Count == 2)
 				Count = 1;
 			R.put(Count, p.getLocation().getY());
 			HoverTicks.put(p, R);
-			return new CheckResult("Fly (Hover)", true);
+			return new CheckResult("Fly", true);
 		}
 	}
 

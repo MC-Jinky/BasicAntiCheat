@@ -1,4 +1,4 @@
-#
+# 
 #   _____  ______  _   _  _____ __   __
 #  / ____||  ____|| \ | ||_   _|\ \ / /
 # | |     | |__   |  \| |  | |   \ V / 
@@ -7,77 +7,57 @@
 #  \_____||______||_| \_||_____|/_/ \_\
 #                                      
 #                                      
+# 
+#
+#
+#
+# THIS WILL DISABLE THE ANTICHEAT IF SET TO FALSE!
+# The anticheat will still load as a plugin, but it won't perform any checks.
+enabled: true
 
 # This is for automatic command execution when a player reaches a certain amount of offenses.
 # List of available replacements to use in the command:
 # [USERNAME], [UUID], [DISPLAYNAME], [OFFENSES], [REPORTID] (if reports:true)
 # Color codes are supported.
 punish: false
-#
-# The amount of offenses the user has to reach before the punishment is executed
-#
+#The amount of offenses (notifications to staff) till the punishment is executed
 punish-offense-count: 5
-punish-command: 'tempban [USERNAME] [OFFENSES]'
+punish-command: 'kick [USERNAME] [OFFENSES]'
 
-#
-# This will log a bunch of user data before the punish command is executed, can be useful
-# to tell between cheating or false calls
-#
+#When a punishment command is executed, it saves stats about a player when the command was executed,
+#can be helpful, but sometimes isn't used.
 log-reports: true
 
-#
-#This will log all offenses to an offenses.txt file in the plugin directory
-#They will be timestamped with the timezone specified
-#
-log-offenses: true
 
-#
-# This is the threshold that when met, all anticheat calls will be ignored,
-# false calls CAN happen when the server does lag, so it's good not to 
-# fiddle with this setting too much
-#
+#This should not be changed, unless your server tends to lag more, if the TPS is less than this number,
+#any call by the anticheat wont add an offense, it will just notify staff. You can check TPS with /cenix info 
 tps-lag-threshold: 17.5
 
+#This is the amount (in seconds) that an offense will expire on players, you shouldn't need to change this, but
+#if the plugin false calls often, increase it.
+offense-expire-time: 130
 
-#
-# The amount of time (in seconds) that each offense will expire in
-#
-offense-expire-time: 180
+#Prefix for all messages, don't include a space at the end
+prefix: '&8[&dCenix&8]&r'
 
-#
-# Prefix for all messages
-#
-prefix: '&2Cenix:&r'
-#
-# Main variable color, such as the offense or player name in messages
-#
 variable-color: '&a'
-#
-# The message that is shown when someone receives an offense (suspicion)
-#
-suspicion-alert: '[VARIABLE_COLOR][DISPLAYNAME] &freceived suspicion for [VARIABLE_COLOR][SUSPICION]&f. (&6[COUNT]&r)'
-#
-# The message that is shown when someone receives an offense, but is ignored because of lag (suspicion)
-#
-suspicion-alert-ignore-tps: '[VARIABLE_COLOR][DISPLAYNAME] &freceived suspicion for [VARIABLE_COLOR][SUSPICION]&f, but it''s being ignored because of bad TPS ([TPS])'
-#
-# The message that is shown when a report is saved
-#
-report-saved-alert: '&fReport for [VARIABLE_COLOR][DISPLAYNAME] &fsaved. ([VARIABLE_COLOR]#[REPORT_ID]&f)'
+suspicion-alert: '[VARIABLE_COLOR][DISPLAYNAME] &breceived suspicion for [VARIABLE_COLOR][SUSPICION]&b.
+  (&d[COUNT]&b)'
+suspicion-alert-ignore-tps: '[VARIABLE_COLOR][DISPLAYNAME] &breceived suspicion for [VARIABLE_COLOR][SUSPICION]&b.
+  (&d[COUNT]&b) &c(High TPS: [TPS]'
+suspicion-alert-ignore-ping: '[VARIABLE_COLOR][DISPLAYNAME] &breceived suspicion for [VARIABLE_COLOR][SUSPICION]&b. &c(High Ping: [PING])'
+report-saved-alert: 'Report for [VARIABLE_COLOR][DISPLAYNAME] &bsaved. ([VARIABLE_COLOR]#[REPORT_ID]&b)'
+
+#Server timezone for accurate time stamps of reports
+timezone: America/New_York
+
+
+version: '0.6'
+
 
 #
-# The timezone for the offenses.txt log
-#
-timezone: 'America/New_York'
-
-#
-# Plugin version, don't touch this.
-#
-version: '0.4'
-#
-#
-#Reports are saved below
-#
-#Yeah I know, there is a LOT better ways of storing this information, and I'm working on switching over to a different
-#storage solution soon.
+# Reports save below
+# I know this isn't efficient, saving them to the bottom of the configuration file, but this isn't my main focus.
+# I'd rather work on making this anticheat detect things to the best of its abilities, not log things perfectly
+# and false call all the time.
 #

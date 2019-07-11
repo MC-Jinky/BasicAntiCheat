@@ -51,8 +51,8 @@ public class SpeedCheck extends Check {
 				Offset = UtilMath.offset(event.getFrom(), event.getTo());
 			}
 
-			if (VersionUtil.isFlying(p) || u.isBouncing() || u.isFalling()) {
-				return new CheckResult("Fly / Speed", true);
+			if (VersionUtil.isFlying(p) || u.isBouncing() || u.isFalling() || u.getPlayer().isInsideVehicle()) {
+				return new CheckResult("Speed", true);
 			}
 			if (UtilBlock.onBlock(p)) {
 				Limit = 0.50;
@@ -66,9 +66,10 @@ public class SpeedCheck extends Check {
 			}
 			if (PlayerLogger.getLogger().getLastElytraFly(p) != -1L) {
 				if (PlayerLogger.getLogger().getLastElytraFly(p) < 150) {
-					return new CheckResult("Fly / Speed", true);
+					return new CheckResult("Speed", true);
 				}
 			}
+
 			Material on = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
 			/*
 			 * For those wondering, this is for the 2 block height running speed-bug in
@@ -97,23 +98,21 @@ public class SpeedCheck extends Check {
 					Limit += 0.18D * (e.getAmplifier() + 1);
 				}
 			}
-
-			if (Offset > Limit && !UtilTime.elapsed(SpeedTicks.get(p).entrySet().iterator().next().getValue(), 150L)) {
+			if (Offset > Limit && !UtilTime.elapsed(SpeedTicks.get(p).entrySet().iterator().next().getValue(), 200L)) {
 				Count = SpeedTicks.get(p).entrySet().iterator().next().getKey() + 1;
 			} else {
 				Count = 0;
 			}
 		}
-
-		if (Count > 6) {
+		if (Count > 3) {
 			Map<Integer, Long> R = new HashMap<Integer, Long>();
 			R.put(3, System.currentTimeMillis());
 			SpeedTicks.put(p, R);
 			if (!UtilBlock.onBlock(p)) {
 				if (event.getTo().getY() == event.getFrom().getY()) {
-					return new CheckResult("Fly / Speed (Hover)", false);
+					return new CheckResult("Speed", false);
 				} else if (event.getTo().getY() > event.getFrom().getY()) {
-					return new CheckResult("Fly / Speed (Rise)", false);
+					return new CheckResult("Speed", false);
 				} else {
 					return new CheckResult("Speed", false);
 				}
@@ -124,7 +123,7 @@ public class SpeedCheck extends Check {
 			R.put(Count, System.currentTimeMillis());
 			SpeedTicks.put(p, R);
 		}
-		return new CheckResult("Fly / Speed", true);
+		return new CheckResult("Speed", true);
 	}
 
 }

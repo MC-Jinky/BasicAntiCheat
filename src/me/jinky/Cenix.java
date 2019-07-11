@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,8 +24,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 
@@ -38,6 +42,8 @@ import me.jinky.checks.flight.BoatCheck;
 import me.jinky.checks.flight.FloatCheck;
 import me.jinky.checks.flight.HoverCheck;
 import me.jinky.checks.flight.RiseCheck;
+import me.jinky.checks.flight.WaterCheck;
+import me.jinky.checks.movement.BlinkCheck;
 import me.jinky.checks.movement.SpeedCheck;
 import me.jinky.command.CenixCmd;
 import me.jinky.fwk.CommandFramework;
@@ -61,13 +67,14 @@ public class Cenix extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		core = this;
+		saveDefaultConfig();
+
 		_fw = new CommandFramework(this);
 		_fw.registerCommands(new CenixCmd());
 
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		this.getServer().getPluginManager().registerEvents(this, this);
 		this.getServer().getPluginManager().registerEvents(new PlayerLogger(), this);
-
 		Settings.loadConfig();
 
 		if (Bukkit.getOnlinePlayers().size() > 0) {
@@ -81,10 +88,12 @@ public class Cenix extends JavaPlugin implements Listener {
 		this.registerCheck(new KillAuraCheck());
 		this.registerCheck(new MultiAuraCheck());
 		this.registerCheck(new BoatCheck());
-		this.registerCheck(new FloatCheck());
+		this.registerCheck(new WaterCheck());
 		this.registerCheck(new HoverCheck());
 		this.registerCheck(new RiseCheck());
 		this.registerCheck(new SpeedCheck());
+		this.registerCheck(new FloatCheck());
+		this.registerCheck(new BlinkCheck());
 	}
 
 	private void registerCheck(Check check) {
@@ -94,6 +103,24 @@ public class Cenix extends JavaPlugin implements Listener {
 
 	public void sendMessage(Player p, String msg) {
 		p.sendMessage(Settings.PREFIX + " " + msg);
+	}
+
+	@EventHandler
+	public void onDamage(EntityDamageEvent event) {
+		if (event.getEntity() instanceof Player) {
+			Player p = (Player) event.getEntity();
+			this.addExemption(p, 5);
+
+		}
+	}
+
+	@EventHandler
+	public void onKick(PlayerKickEvent event) {
+		if (event.getReason().equalsIgnoreCase("Flying is not enabled on this server")) {
+			this.addSuspicion(event.getPlayer(), "Fly");
+			this.addExemption(event.getPlayer(), 50);
+			event.setCancelled(true);
+		}
 	}
 
 	@Override
@@ -146,6 +173,9 @@ public class Cenix extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onMove(PlayerMoveEvent event) {
+		if (Settings.ENABLED == false) {
+			return;
+		}
 		if (!this.isExempt(event.getPlayer())) {
 			for (Check c : All_Checks) {
 				if (c.getEventCall().equals(event.getEventName())) {
@@ -165,10 +195,14 @@ public class Cenix extends JavaPlugin implements Listener {
 				}
 			}
 		}
+
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlace(BlockPlaceEvent event) {
+		if (Settings.ENABLED == false) {
+			return;
+		}
 		for (Check c : All_Checks) {
 			if (c.getEventCall().equals(event.getEventName())) {
 				CheckResult result = c.performCheck(this.getUser(event.getPlayer()), event);
@@ -180,8 +214,28 @@ public class Cenix extends JavaPlugin implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void ontp(PlayerTeleportEvent event) {
+		if (Settings.ENABLED == false) {
+			return;
+		}
+		Player p = event.getPlayer();
+		for (Check c : All_Checks) {
+			if (c.getEventCall().equals(event.getEventName())) {
+				CheckResult result = c.performCheck(this.getUser(p), event);
+				if (!result.passed()) {
+					event.setCancelled(true);
+					this.addSuspicion(p, result.getCheckName());
+				}
+			}
+		}
+	}
+
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onDamage(EntityDamageByEntityEvent event) {
+		if (Settings.ENABLED == false) {
+			return;
+		}
 		if (event.getDamager() instanceof Player) {
 			Player p = (Player) event.getDamager();
 			for (Check c : All_Checks) {
@@ -198,6 +252,9 @@ public class Cenix extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBreak(BlockBreakEvent event) {
+		if (Settings.ENABLED == false) {
+			return;
+		}
 		for (Check c : All_Checks) {
 			if (c.getEventCall().equals(event.getEventName())) {
 				CheckResult result = c.performCheck(this.getUser(event.getPlayer()), event);
@@ -268,8 +325,7 @@ public class Cenix extends JavaPlugin implements Listener {
 					r.add("Bouncing: " + "[VC]" + (PlayerLogger.getLogger().isBouncing(p) ? "Yes" : "No"));
 					r.add("Flying: " + "[VC]" + (p.isFlying() ? "Yes" : "No"));
 					r.add("GameMode: " + "[VC]" + p.getGameMode().toString().toLowerCase());
-					r.add("[INACCURATE] Ping: " + "[VC]"
-							+ ((org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer) p).getHandle().ping / 2);
+					r.add("[INACCURATE] Ping: [VC]" + Cenix.getPing(p));
 					r.add("Potion Effects: " + "[VC]" + (p.getActivePotionEffects().size() != 0 ? "Yes" : "No"));
 					for (PotionEffect eff : p.getActivePotionEffects()) {
 						r.add("  §f- " + "[VC]" + eff.getType().getName() + " (x" + eff.getAmplifier() + ")");
@@ -310,7 +366,12 @@ public class Cenix extends JavaPlugin implements Listener {
 				PrintWriter pw = new PrintWriter(fw);
 				Date d = new Date();
 				SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss a");
-				sdf.setTimeZone(TimeZone.getTimeZone(Settings.TIMEZONE));
+				try {
+					sdf.setTimeZone(TimeZone.getTimeZone(Settings.TIMEZONE));
+				} catch (Exception e) {
+					this.console("§c'timezone' is not a valid Time Zone! Defaulting to America/New_York");
+					Settings.TIMEZONE = "America/New_York";
+				}
 				pw.println("[" + sdf.format(d).toLowerCase().replaceAll(" am", "am").replaceAll(" pm", "pm") + "] "
 						+ line);
 				pw.flush();
@@ -321,16 +382,52 @@ public class Cenix extends JavaPlugin implements Listener {
 		}
 	}
 
+	public static int getPing(Player p) {
+		int ping = 0;
+		try {
+			Object entityPlayer = p.getClass().getMethod("getHandle").invoke(p);
+			ping = (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException | NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+		return ping;
+	}
+
 	public void addSuspicion(Player p, String detector) {
+		if (Settings.ENABLED == false) {
+			return;
+		}
 		if (!reports.containsKey(p)) {
 			reports.put(p, new HashMap<Long, String>());
 		}
 		if (this.isExempt(p)) {
 			return;
 		}
+		int ping = 0;
+		try {
+			Object entityPlayer = p.getClass().getMethod("getHandle").invoke(p);
+			ping = (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException | NoSuchFieldException e) {
+			e.printStackTrace();
+		}
 		this.addExemptionBlock(p, 50);
-		if (Lag.getTPS() <= Settings.TPS_LAG_THRESHOLD) {
+		if (ping >= 125) {
 			String m = Settings.SUSPICION_ALERT_IGNORE_TPS;
+			m = m.replaceAll("\\[VARIABLE_COLOR\\]", Settings.VARIABLE_COLOR);
+			m = m.replaceAll("\\[DISPLAYNAME\\]", p.getDisplayName());
+			m = m.replaceAll("\\[USERNAME\\]", p.getName());
+			m = m.replaceAll("\\[NAME\\]", p.getName());
+			m = m.replaceAll("\\[UUID\\]", p.getUniqueId().toString());
+			m = m.replaceAll("\\[SUSPICION\\]", detector);
+			m = m.replaceAll("\\[COUNT\\]", "");
+			broadcast(m);
+			this.logFile(m);
+			return;
+		}
+		if (Lag.getTPS() <= Settings.TPS_LAG_THRESHOLD) {
+			String m = Settings.SUSPICION_ALERT_IGNORE_PING;
 			m = m.replaceAll("\\[VARIABLE_COLOR\\]", Settings.VARIABLE_COLOR);
 			m = m.replaceAll("\\[DISPLAYNAME\\]", p.getDisplayName());
 			m = m.replaceAll("\\[USERNAME\\]", p.getName());
@@ -364,8 +461,8 @@ public class Cenix extends JavaPlugin implements Listener {
 		m = m.replaceAll("\\[UUID\\]", p.getUniqueId().toString());
 		m = m.replaceAll("\\[SUSPICION\\]", detector);
 		m = m.replaceAll("\\[COUNT\\]", Count + "");
-		this.logFile(m);
 		broadcast(m);
+
 	}
 
 	public void broadcast(String... msgs) {

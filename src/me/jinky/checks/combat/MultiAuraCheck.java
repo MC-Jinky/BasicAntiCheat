@@ -37,7 +37,7 @@ public class MultiAuraCheck extends Check {
 		String ret = null;
 		Player p = u.getPlayer();
 		if (event.getCause() == DamageCause.ENTITY_SWEEP_ATTACK) {
-			return null;
+			return new CheckResult("Multi Aura", true);
 		}
 		if (LastHit.containsKey(p)) {
 			long time = System.currentTimeMillis() - LastHit.get(p).keySet().iterator().next();

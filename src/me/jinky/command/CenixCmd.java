@@ -31,12 +31,30 @@ public class CenixCmd {
 			}
 			return;
 		}
+		if (args[0].equalsIgnoreCase("tac") && p.hasPermission("cenix.tac")) {
+			if (Settings.ENABLED == true) {
+				Settings.ENABLED = false;
+				cenix.sendMessage(p, "§cCenix anticheat functionality has been disabled!");
+			} else {
+				Settings.ENABLED = true;
+				cenix.sendMessage(p, "§aCenix anticheat functionality has been enabled!");
+			}
+			Cenix c = Cenix.getCenix();
+			c.reloadConfig();
+			c.getConfig().set("enabled", Settings.ENABLED);
+			c.saveConfig();
+			return;
+		}
 		if (args[0].equalsIgnoreCase("help")) {
 			boolean hasinfo = false;
 			boolean hasnotify = false;
 			boolean hasexempt = false;
 			boolean hasvr = false;
 			boolean hasrlcfg = false;
+			boolean hastac = false;
+			if (p.hasPermission("cenix.tac")) {
+				hastac = true;
+			}
 			if (p.hasPermission("cenix.reload")) {
 				hasrlcfg = true;
 			}
@@ -66,6 +84,10 @@ public class CenixCmd {
 						Settings.VARIABLE_COLOR + "/cenix viewreport <id> §7-§r Views a report on a player kick.");
 			if (hasrlcfg)
 				cenix.sendMessage(p, Settings.VARIABLE_COLOR + "/cenix reload §7-§r Reloads the configuration file.");
+			if (hastac)
+				cenix.sendMessage(p,
+						Settings.VARIABLE_COLOR + "/cenix tac - §cThis will disable/enable the anticheat.");
+
 			return;
 		}
 		if (args[0].equalsIgnoreCase("info") && p.hasPermission("cenix.info")) {

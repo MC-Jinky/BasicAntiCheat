@@ -1,22 +1,20 @@
 package me.jinky.checks.blocks;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.util.Vector;
 
 import me.jinky.Cenix;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
-import me.jinky.raytrace.RayTrace;
 import me.jinky.util.VersionUtil;
 
 public class BreakCheck extends Check {
@@ -50,7 +48,6 @@ public class BreakCheck extends Check {
 		if (p.getGameMode() == GameMode.CREATIVE) {
 			instant = true;
 		}
-
 		if (!instant) {
 			Integer Count = 1;
 			if (BreakCount.containsKey(p)) {
@@ -81,14 +78,10 @@ public class BreakCheck extends Check {
 				return new CheckResult("Impossible Break / Fast Break", true);
 			}
 			Location placed = event.getBlock().getLocation();
-			RayTrace rayTrace = new RayTrace(p.getEyeLocation().toVector(), p.getEyeLocation().getDirection());
-			ArrayList<Vector> positions = rayTrace.traverse(6, 1.5);
-			Boolean call = true;
-			for (Vector v : positions) {
-				if (v.toLocation(placed.getWorld()).distance(placed) < 3) {
-					call = false;
-					break;
-				}
+			Block target = p.getTargetBlock(15);
+			Boolean call = false;
+			if (placed.distance(target.getLocation()) > 2.3) {
+				call = true;
 			}
 			if (call) {
 				return new CheckResult("Impossible Break (Not in LoS)", false);

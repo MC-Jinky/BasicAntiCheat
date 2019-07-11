@@ -23,14 +23,14 @@ public class BoatCheck extends Check {
 	@Override
 	public CheckResult performCheck(User u, Event e) {
 		if (u.getBlock().isLiquid() || u.getBlock().getType().toString().toLowerCase().contains("carpet"))
-			return new CheckResult("Fly (Boat)", true);
+			return new CheckResult("Boat Fly", true);
 
 		if (u.InVehicle() && u.getVehicle().getType() == EntityType.BOAT) {
-			if (u.getVehicleBlock().getType() != Material.AIR
+			if (u.getVehicleBlock().getType() == Material.AIR
 					&& UtilBlock.getSurroundingIgnoreAir(u.getBlock(), false).size() == 0) {
 				Location LastSafe = u.LastNormalBoatLoc();
 				if (LastSafe != null) {
-					Cenix.getCenix().addExemptionBlock(u, 10);
+					Cenix.getCenix().addExemptionBlock(u, 5);
 					Entity v = u.getVehicle();
 					u.eject();
 					u.teleport(LastSafe);
@@ -45,10 +45,10 @@ public class BoatCheck extends Check {
 				} else {
 					u.eject();
 				}
-				return new CheckResult("Fly (Boat)", false);
+				return new CheckResult("Boat Fly", false);
 			}
 		}
-		return new CheckResult("Fly (Boat)", true);
+		return new CheckResult("Fly", true);
 	}
 
 }

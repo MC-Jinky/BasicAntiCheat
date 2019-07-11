@@ -34,11 +34,13 @@ public class RiseCheck extends Check {
 				bouncecheck = true;
 			}
 		}
-		if (u.isBouncing() || bouncecheck) {
-			return new CheckResult("Fly (Rise)", true);
+		if (u.isBouncing() || bouncecheck
+				|| (p.isInsideVehicle() && p.getVehicle().getType().toString().contains("HORSE"))) {
+			return new CheckResult("Fly", true);
 		}
-		if (u.getPlayer().hasPotionEffect(PotionEffectType.JUMP)) {
-			return new CheckResult("Fly (Rise)", true);
+		if (u.getPlayer().hasPotionEffect(PotionEffectType.JUMP)
+				|| u.getPlayer().hasPotionEffect(PotionEffectType.SLOW_FALLING)) {
+			return new CheckResult("Fly", true);
 		}
 		if (RiseTicks.containsKey(p)) {
 			if (p.getLocation().getY() > RiseTicks.get(p).values().iterator().next() && !VersionUtil.isFlying(p)) {
@@ -59,12 +61,12 @@ public class RiseCheck extends Check {
 			Map<Integer, Double> R = new HashMap<Integer, Double>();
 			R.put(2, p.getLocation().getY());
 			RiseTicks.put(p, R);
-			return new CheckResult("Fly (Rise)", false);
+			return new CheckResult("Fly", false);
 		}
 		Map<Integer, Double> R = new HashMap<Integer, Double>();
 		R.put(Count, p.getLocation().getY());
 		RiseTicks.put(p, R);
-		return new CheckResult("Fly (Rise)", true);
+		return new CheckResult("Fly", true);
 	}
 
 }
