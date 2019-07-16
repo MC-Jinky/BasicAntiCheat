@@ -2,14 +2,8 @@
 
 ### Cenix is just another open-source anticheat, but I promise this one won't die in 2 weeks like the others.
 
-##### The OFFICIAL cenix posting is located on spigot here https://www.spigotmc.org/resources/cenix-anti-cheat.69319/ #####
+##### The OFFICIAL Cenix posting is located on Spigot here https://www.spigotmc.org/resources/cenix-anti-cheat.59292/ #####
 **If you would like to contribute, go ahead.**
-
-A list of things to be done:
-    ** Top Priority **
-  - [ ] Fix anticheat causing false flags when a user has a higher speed level than what possible in survival
-  - [ ] Save reports in a much better way. (Probably h2, maybe add mysql save option ?)
-  - [ ] Add command for viewing a user's reports, & viewing latest reports ( ^ finish above first ^ )
 
 
 A list of what is currently detected (mostly):
