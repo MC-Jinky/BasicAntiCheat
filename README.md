@@ -2,6 +2,7 @@
 
 ### Cenix is just another open-source anticheat, but I promise this one won't die in 2 weeks like the others.
 
+##### The OFFICIAL cenix posting is located on spigot here https://www.spigotmc.org/resources/cenix-anti-cheat.69319/ #####
 **If you would like to contribute, go ahead.**
 
 A list of things to be done:
