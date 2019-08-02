@@ -3,6 +3,7 @@ package me.jinky.checks.blocks;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -70,26 +71,34 @@ public class BreakCheck extends Check {
 				BreakCount.put(p, new HashMap<Long, Integer>());
 			}
 			BreakCount.put(p, R);
+			if (Bukkit.getPluginManager().getPlugin("GraviTree") != null
+					&& event.getBlock().getType().toString().contains("LOG")) {
+				return new CheckResult("Impossible Break / Fast Break", true);
+			}
 			if (Count > 9 && !VersionUtil.hasEfficiency(p)) {
 				event.setCancelled(true);
 				return new CheckResult("Fast Break (" + Count + "bps)", false);
 			}
 			if (VersionUtil.hasEfficiency(p)) {
-				return new CheckResult("Impossible Break / Fast Break", true);
+				return new CheckResult("Impossible/Fast Break", true);
 			}
 			Location placed = event.getBlock().getLocation();
 			Block target = p.getTargetBlock(15);
 			Boolean call = false;
-			if (placed.distance(target.getLocation()) > 2.3) {
+			if (placed.distance(target.getLocation()) > 4.7) {
 				call = true;
 			}
+			if (event.getBlock().getType() == Material.NETHERRACK
+					|| event.getBlock().getType().toString().contains("BAMBOO")) {
+				call = false;
+			}
 			if (call) {
-				return new CheckResult("Impossible Break (Not in LoS)", false);
+				return new CheckResult("Impossible/Fast Break", false);
 			} else {
-				return new CheckResult("Impossible Break / Fast Break", true);
+				return new CheckResult("Impossible/Fast Break", true);
 			}
 		} else {
-			return new CheckResult("Impossible Break / Fast Break", true);
+			return new CheckResult("Impossible/Fast Break", true);
 		}
 	}
 }

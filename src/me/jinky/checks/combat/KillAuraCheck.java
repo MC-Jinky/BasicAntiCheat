@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -12,7 +11,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
-import me.jinky.util.Utilities;
 
 public class KillAuraCheck extends Check {
 
@@ -43,10 +41,7 @@ public class KillAuraCheck extends Check {
 		Location hit = event.getEntity().getLocation();
 		Location possible = event.getDamager().getLocation().getDirection().multiply(-2.2)
 				.toLocation(event.getDamager().getWorld());
-		if (!Utilities.canReallySeeEntity(u.getPlayer(), (LivingEntity) event.getEntity())) {
-			return new CheckResult("Kill Aura", false);
 
-		}
 		if (hit.distance(possible) <= 1.1) {
 			return new CheckResult("Kill Aura", false);
 		}

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -19,7 +20,6 @@ import me.jinky.logger.User;
 import me.jinky.util.UtilBlock;
 import me.jinky.util.UtilMath;
 import me.jinky.util.UtilTime;
-import me.jinky.util.VersionUtil;
 
 public class SpeedCheck extends Check {
 
@@ -43,7 +43,7 @@ public class SpeedCheck extends Check {
 		Integer Count = 0;
 		Player p = u.getPlayer();
 		double Offset = 0;
-		double Limit = 0.74;
+		double Limit = 0.35;
 		if (this.SpeedTicks.containsKey(p)) {
 			if (event.getFrom().getY() > event.getTo().getY()) {
 				Offset = UtilMath.offset2d(event.getFrom(), event.getTo());
@@ -51,40 +51,53 @@ public class SpeedCheck extends Check {
 				Offset = UtilMath.offset(event.getFrom(), event.getTo());
 			}
 
-			if (VersionUtil.isFlying(p) || u.isBouncing() || u.isFalling() || u.getPlayer().isInsideVehicle()) {
+			if (p.isGliding() || u.isBouncing() || u.isFalling() || u.getPlayer().isInsideVehicle()) {
 				return new CheckResult("Speed", true);
 			}
 			if (UtilBlock.onBlock(p)) {
-				Limit = 0.50;
+				Limit = 0.56;
 			}
 			if (UtilBlock.onStairs(p)) {
-				Limit = 0.50;
+				Limit = 0.77;
 			}
-
-			if (Limit < 0.74 && UtilBlock.getBlockAbove(p).getType() != Material.AIR) {
-				Limit = 0.74;
+			if (Limit < 0.77 && UtilBlock.getBlockAbove(p).getType() != Material.AIR) {
+				Limit = 0.77;
 			}
 			if (PlayerLogger.getLogger().getLastElytraFly(p) != -1L) {
 				if (PlayerLogger.getLogger().getLastElytraFly(p) < 150) {
 					return new CheckResult("Speed", true);
 				}
 			}
+			Boolean ice = false;
+			if (u.getBlockBelow().getType().toString().toLowerCase().contains("ice")) {
+				ice = true;
+			}
 
-			Material on = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
 			/*
 			 * For those wondering, this is for the 2 block height running speed-bug in
 			 * minecraft Makes you run (at highest) around 1.17, so I bumped up to 1.2 just
 			 * to be safe
 			 */
-			if ((on == Material.PACKED_ICE || on == Material.ICE)
-					&& UtilBlock.getBlockAbove(p).getType() != Material.AIR) {
-				Limit = 1.2;
+			if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType().toString().contains("ICE")
+					|| p.getLocation().getBlock().getRelative(0, -2, 0).getType().toString().contains("ICE")) {
+				Limit += 2.0;
 			}
 
 			/*
-			 * TODO: Accomodate for the fact that using speed affects on staircases make you
-			 * move (upwards) in a much higher rate
+			 * TODO: Fix for flast elytra flight up/down when on ice, increases speed
+			 * slightly.
 			 */
+			if (ice && (p.isGliding() || u.LastElytraFly() <= 650)) {
+				Limit += 0.38D;
+			}
+			if (p.isSwimming()) {
+				Limit += 0.15D;
+			}
+			if (p.getInventory().getBoots() != null) {
+				if (p.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+					Limit += 0.08 * (p.getInventory().getBoots().getEnchantmentLevel(Enchantment.DEPTH_STRIDER) + 1);
+				}
+			}
 			for (PotionEffect e : p.getActivePotionEffects()) {
 				if (e.getType().equals(PotionEffectType.SPEED)) {
 					if (UtilBlock.onStairs(p)) {
@@ -104,21 +117,25 @@ public class SpeedCheck extends Check {
 				Count = 0;
 			}
 		}
+		Boolean call = false;
 		if (Count > 3) {
 			Map<Integer, Long> R = new HashMap<Integer, Long>();
-			R.put(3, System.currentTimeMillis());
+			R.put(4, System.currentTimeMillis());
 			SpeedTicks.put(p, R);
 			if (!UtilBlock.onBlock(p)) {
-				if (event.getTo().getY() == event.getFrom().getY()) {
-					return new CheckResult("Speed", false);
-				} else if (event.getTo().getY() > event.getFrom().getY()) {
-					return new CheckResult("Speed", false);
+				call = true;
+			}
+			if (call) {
+				if (!UtilBlock.onBlock(p)) {
+					return new CheckResult("Flight", false);
 				} else {
 					return new CheckResult("Speed", false);
 				}
 			}
-			return new CheckResult("Speed", false);
 		} else {
+			if (Count > 0)
+				Count--;
+
 			Map<Integer, Long> R = new HashMap<Integer, Long>();
 			R.put(Count, System.currentTimeMillis());
 			SpeedTicks.put(p, R);

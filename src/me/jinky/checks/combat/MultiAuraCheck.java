@@ -41,7 +41,11 @@ public class MultiAuraCheck extends Check {
 		}
 		if (LastHit.containsKey(p)) {
 			long time = System.currentTimeMillis() - LastHit.get(p).keySet().iterator().next();
-			double distance = LastHit.get(p).values().iterator().next().distance(hit);
+			Location last = LastHit.get(p).values().iterator().next();
+			if (last.getWorld() != hit.getWorld()) {
+				return new CheckResult("MultiAura", true);
+			}
+			double distance = last.distance(hit);
 
 			if (distance > 1.5 && time < 8) {
 				ret = "Multi Aura";

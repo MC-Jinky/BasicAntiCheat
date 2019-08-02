@@ -78,6 +78,10 @@ public class User {
 		p.eject();
 	}
 
+	public Long getLastSprint() {
+		return PlayerLogger.getLogger().getLastSprint(p);
+	}
+
 	public Location LastGroundLocation() {
 		return PlayerLogger.getLogger().getLastGroundLocation(p);
 	}

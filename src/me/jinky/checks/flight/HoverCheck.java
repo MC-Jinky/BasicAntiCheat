@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffectType;
 
 import me.jinky.Cenix;
 import me.jinky.checks.Check;
@@ -39,19 +40,20 @@ public class HoverCheck extends Check {
 				}
 			}
 		}
-		if (Count > 2 && !p.isInsideVehicle() && !VersionUtil.isFlying(p)) {
+		if (Count > 2 && !p.isInsideVehicle() && !VersionUtil.isFlying(p)
+				&& !p.hasPotionEffect(PotionEffectType.LEVITATION)) {
 			Map<Integer, Double> R = new HashMap<Integer, Double>();
 			R.put(0, p.getLocation().getY());
 			HoverTicks.put(p, R);
-			Cenix.getCenix().addExemptionBlock(p, 20);
-			return new CheckResult("Fly", false);
+			Cenix.getCenix().EXEMPTHANDLER.addExemptionBlock(p, 20);
+			return new CheckResult("Flight", false);
 		} else {
 			Map<Integer, Double> R = new HashMap<Integer, Double>();
 			if (Count == 2)
 				Count = 1;
 			R.put(Count, p.getLocation().getY());
 			HoverTicks.put(p, R);
-			return new CheckResult("Fly", true);
+			return new CheckResult("Flight", true);
 		}
 	}
 

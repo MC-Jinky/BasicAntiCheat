@@ -52,7 +52,7 @@ public class WaterCheck extends Check {
 			}
 			RE.put(5, p.getLocation().getY());
 			FloatTicks.put(p, RE);
-			return new CheckResult("Water Walk", false);
+			return new CheckResult("WaterWalk", false);
 		}
 		Map<Integer, Double> RE = new HashMap<Integer, Double>();
 		int nc = Count;
@@ -66,7 +66,7 @@ public class WaterCheck extends Check {
 		}
 		RE.put(nc, p.getLocation().getY());
 		FloatTicks.put(p, RE);
-		return new CheckResult("Water Walk", true);
+		return new CheckResult("WaterWalk", true);
 
 	}
 

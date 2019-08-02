@@ -21,13 +21,13 @@ public class CenixCmd {
 		String[] args = a.getArgs();
 		Cenix cenix = Cenix.getCenix();
 		if (args.length == 0) {
-			cenix.sendMessage(p, "Running Cenix version " + Settings.VARIABLE_COLOR
+			cenix.sendMessage(p, "§rRunning Cenix version " + Settings.VARIABLE_COLOR
 					+ cenix.getDescription().getVersion().replaceAll("\\[", "").replaceAll("\\]", "") + "§f by "
 					+ Settings.VARIABLE_COLOR
 					+ cenix.getDescription().getAuthors().get(0).replaceAll("\\[", "").replaceAll("\\]", "") + "§f.");
 			if (p.hasPermission("cenix.admin")) {
 				cenix.sendMessage(p,
-						"Use " + Settings.VARIABLE_COLOR + "/cenix help§r for a list of available commands.");
+						"§fUse " + Settings.VARIABLE_COLOR + "/cenix help§f for a list of available commands.");
 			}
 			return;
 		}
@@ -163,7 +163,7 @@ public class CenixCmd {
 				cenix.sendMessage(p, "That's not a valid time! Example: " + Settings.VARIABLE_COLOR + "1d5h3m");
 				return;
 			}
-			cenix.addExemption(p, (expire - System.currentTimeMillis()));
+			Cenix.getCenix().EXEMPTHANDLER.addExemption(p, (int) (expire - System.currentTimeMillis()));
 			cenix.broadcast(Settings.VARIABLE_COLOR + "" + t.getDisplayName() + " §rwas added to the exempt list.",
 					"This will expire in " + Settings.VARIABLE_COLOR
 							+ UtilTime.MakeStr((expire - System.currentTimeMillis()), 2) + "§r.");

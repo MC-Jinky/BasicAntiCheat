@@ -13,23 +13,22 @@ public class Settings {
 
 	public static boolean ENABLED = true;
 	public static boolean PUNISH = false;
-	public static int PUNISH_OFFENSE_COUNT = 5;
+	public static int PUNISH_OFFENSE_COUNT = 7;
 	public static String PUNISH_COMMAND = "";
 
-	public static boolean LOG_REPORTS = false;
 	public static boolean LOG_OFFENSES = true;
+	public static boolean ABN = true;
 
-	public static int OFFENSE_EXPIRE_TIME = 180;
+	public static int OFFENSE_EXPIRE_TIME = 25;
 	public static double TPS_LAG_THRESHOLD = 17.5;
 
 	public static String PREFIX = "§8[§dCenix§8]§r";
 	public static String VARIABLE_COLOR = "§a";
 	public static String SUSPICION_ALERT = "[VARIABLE_COLOR] [DISPLAYNAME] §freceived suspicion for §6[SUSPICION]§f. ([COUNT])";
-	public static String SUSPICION_ALERT_IGNORE_TPS = "[VARIABLE_COLOR] [DISPLAYNAME] §freceived suspicion for §6[SUSPICION]§f, but it's being ignored because of bad TPS ([TPS])";
-	public static String SUSPICION_ALERT_IGNORE_PING = "[VARIABLE_COLOR] [DISPLAYNAME] §freceived suspicion for §6[SUSPICION]§f, but it's being ignored because of bad TPS ([TPS])";
-	public static String REPORT_SAVED_ALERT = "§fReport for [VARIABLE_COLOR][DISPLAYNAME] §fsaved. ([VARIABLE_COLOR][REPORT_ID]§f)";
 
 	public static String TIMEZONE = "America/New_York";
+
+	public static boolean CANCEL_ON_OFFENSE = true;
 
 	public static void loadConfig() {
 		Cenix c = Cenix.getCenix();
@@ -43,6 +42,13 @@ public class Settings {
 		} catch (Exception e) {
 			c.console("§cThere was a problem loading the configuration!");
 			c.console("§c'enabled' is not a valid boolean! Defaulting to " + ENABLED + ".");
+		}
+
+		try {
+			CANCEL_ON_OFFENSE = Boolean.parseBoolean(cf.getString("cancel-on-offense"));
+		} catch (Exception e) {
+			c.console("§cThere was a problem loading the configuration!");
+			c.console("§cancel-on-offense' is not a valid boolean, or doesn't exist! Defaulting to " + ENABLED + ".");
 		}
 		try {
 			PUNISH = Boolean.parseBoolean(cf.getString("punish"));
@@ -58,6 +64,15 @@ public class Settings {
 			c.console("§c'tps-lag-threshold' is not a valid number! Defaulting to " + TPS_LAG_THRESHOLD + ".");
 		}
 		try {
+			if (!cf.contains("action-bar-notifications")) {
+				cf.set("action-bar-notifications", true);
+			}
+			ABN = cf.getBoolean("action-bar-notifications");
+		} catch (Exception e) {
+			c.console("§cThere was a problem loading the configuration!");
+			c.console("§c'action-bar-notifications' is not a valid boolean! Defaulting to " + ABN + ".");
+		}
+		try {
 			PUNISH_OFFENSE_COUNT = Integer.parseInt(cf.getString("punish-offense-count"));
 		} catch (Exception e) {
 			c.console("§cThere was a problem loading the configuration!");
@@ -65,31 +80,12 @@ public class Settings {
 		}
 		PUNISH_COMMAND = ChatColor.translateAlternateColorCodes('&', cf.getString("punish-command"));
 		try {
-			LOG_REPORTS = Boolean.parseBoolean(cf.getString("log-reports"));
-		} catch (Exception e) {
-			c.console("§cThere was a problem loading the configuration!");
-			c.console("§c'log-reports' is not a valid boolean! Defaulting to " + LOG_REPORTS + ".");
-		}
-		try {
 			OFFENSE_EXPIRE_TIME = Integer.parseInt(cf.getString("offense-expire-time"));
 		} catch (Exception e) {
 			c.console("§cThere was a problem loading the configuration!");
 			c.console("§c'offense-expire-time' is not a valid integer! Defaulting to " + OFFENSE_EXPIRE_TIME + ".");
 		}
 		SUSPICION_ALERT = ChatColor.translateAlternateColorCodes('&', cf.getString("suspicion-alert"));
-		SUSPICION_ALERT_IGNORE_TPS = ChatColor.translateAlternateColorCodes('&',
-				cf.getString("suspicion-alert-ignore-tps"));
-		REPORT_SAVED_ALERT = ChatColor.translateAlternateColorCodes('&', cf.getString("report-saved-alert"));
-		if (SUSPICION_ALERT_IGNORE_TPS.toUpperCase().contains("[COUNT]")) {
-			c.console(
-					"§eWarning: The 'suspicion-alert-ignore-tps' message has the [COUNT] variable defined, but the count isn't active in this message, it will be blank.");
-		}
-		SUSPICION_ALERT_IGNORE_PING = ChatColor.translateAlternateColorCodes('&',
-				cf.getString("suspicion-alert-ignore-ping"));
-		if (SUSPICION_ALERT_IGNORE_PING.toUpperCase().contains("[COUNT]")) {
-			c.console(
-					"§eWarning: The 'suspicion-alert-ignore-ping' message has the [COUNT] variable defined, but the count isn't active in this message, it will be blank.");
-		}
 		TIMEZONE = cf.getString("timezone");
 
 		File offenses = new File(c.getDataFolder(), "offenses.txt");

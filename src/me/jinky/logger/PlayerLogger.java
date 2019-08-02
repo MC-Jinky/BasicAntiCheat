@@ -35,6 +35,7 @@ public class PlayerLogger implements Listener {
 	private static Map<Player, Long> LastGroundTime = new HashMap<Player, Long>();
 	private static List<Player> Falling = new ArrayList<Player>();
 	private static List<Player> Bouncing = new ArrayList<Player>();
+	private static Map<Player, Long> LastSprint = new HashMap<Player, Long>();
 	private static Map<Player, Location> LastGroundLocation = new HashMap<Player, Location>();
 	private static Map<Player, Location> LastRegularMove = new HashMap<Player, Location>();
 	private static Map<Player, Location> LastRegularBoatLocation = new HashMap<Player, Location>();
@@ -67,7 +68,7 @@ public class PlayerLogger implements Listener {
 	public void onGamemode(PlayerGameModeChangeEvent event) {
 		if (event.getNewGameMode() != GameMode.CREATIVE && event.getNewGameMode() != GameMode.SPECTATOR) {
 			updateLastFly(event.getPlayer());
-			Cenix.getCenix().addExemption(event.getPlayer(), 3000);
+			Cenix.getCenix().EXEMPTHANDLER.addExemption(event.getPlayer(), 3000);
 
 		}
 	}
@@ -92,7 +93,7 @@ public class PlayerLogger implements Listener {
 		if (event.getEntity() instanceof Player) {
 			Player p = (Player) event.getEntity();
 			if (event.getCause().toString().toUpperCase().contains("EXPLOSION")) {
-				Cenix.getCenix().addExemption(p, 3000);
+				Cenix.getCenix().EXEMPTHANDLER.addExemption(p, 3000);
 			}
 		}
 	}
@@ -101,17 +102,17 @@ public class PlayerLogger implements Listener {
 	public void onFly(PlayerToggleFlightEvent event) {
 		if (!event.isFlying()) {
 			updateLastFly(event.getPlayer());
-			Cenix.getCenix().addExemption(event.getPlayer(), 3000);
+			Cenix.getCenix().EXEMPTHANDLER.addExemption(event.getPlayer(), 3000);
 		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onTeleport(PlayerTeleportEvent event) {
 		this.updateLastTeleport(event.getPlayer());
-		Cenix.getCenix().addExemption(event.getPlayer(), 5000);
+		Cenix.getCenix().EXEMPTHANDLER.addExemption(event.getPlayer(), 5000);
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onMove(PlayerMoveEvent event) {
 		Player p = event.getPlayer();
 		Location f = event.getFrom();
@@ -122,10 +123,16 @@ public class PlayerLogger implements Listener {
 				LastGroundLocation.put(p, p.getLocation());
 			}
 		}
+		if (p.isSprinting()) {
+			LastSprint.put(p, System.currentTimeMillis());
+		}
 		if (p.isInsideVehicle()) {
 			if (p.getVehicle().getLocation().getBlock().isLiquid()) {
 				this.updateLastRegularBoatLocation(p);
 			}
+		}
+		if (this.getLastElytraFly(p) < 150 && !p.isGliding() && this.getLastElytraFly(p) != -1L) {
+			Cenix.getCenix().EXEMPTHANDLER.addExemption(p, 500);
 		}
 		if (t.getY() < f.getY() && !VersionUtil.isFlying(p)) {
 			this.updateFalling(p, true);
@@ -133,15 +140,11 @@ public class PlayerLogger implements Listener {
 			this.updateBouncing(p, false);
 			this.updateLastSlimeBounce(p);
 		} else {
-			if (VersionUtil.isPlus19()) {
-				if (p.isGliding())
-					this.updateLastElytraFly(p);
-			} else {
-				if (p.isFlying())
-					this.updateLastElytraFly(p);
-			}
+			if (p.isGliding())
+				this.updateLastElytraFly(p);
+
 			this.updateFalling(p, false);
-			if (this.getDown(f) == Material.SLIME_BLOCK) {
+			if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
 				this.updateBouncing(p, true);
 				this.updateLastSlimeBounce(p);
 			} else if (this.isBouncing(p) && this.getDown(t) == Material.AIR) {
@@ -149,6 +152,9 @@ public class PlayerLogger implements Listener {
 			} else {
 				this.updateBouncing(p, false);
 			}
+		}
+		if (t.getY() > f.getY()) {
+			this.updateFalling(p, false);
 		}
 	}
 
@@ -188,6 +194,12 @@ public class PlayerLogger implements Listener {
 		return (System.currentTimeMillis() - LastSlimeBounce.get(p));
 	}
 
+	public Long getLastSprint(Player p) {
+		if (!LastSprint.containsKey(p))
+			return -1L;
+		return (System.currentTimeMillis() - LastSprint.get(p));
+	}
+
 	public Long getLastTeleport(Player p) {
 		if (!LastTeleport.containsKey(p))
 			return -1L;
@@ -202,6 +214,20 @@ public class PlayerLogger implements Listener {
 
 	public Boolean isFalling(Player p) {
 		return Falling.contains(p);
+	}
+
+	public Boolean isElytra(Player p) {
+		Boolean answer = false;
+		if (p.isGliding())
+			answer = true;
+
+		if (LastElytraFly.containsKey(p)) {
+			Long math = System.currentTimeMillis() - LastElytraFly.get(p);
+			if (math <= 250) {
+				answer = true;
+			}
+		}
+		return answer;
 	}
 
 	public Boolean isBouncing(Player p) {

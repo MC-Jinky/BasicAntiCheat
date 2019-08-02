@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -36,12 +37,18 @@ public class PlaceCheck extends Check {
 		Player p = u.getPlayer();
 		int Count = 1;
 		if (PlaceCount.containsKey(p)) {
-			if (PlaceCount.get(p).keySet().iterator().next() > System.currentTimeMillis()) {
-				Count += PlaceCount.get(p).values().iterator().next();
-			} else {
+			try {
+				if (PlaceCount.get(p).keySet().iterator().next() > System.currentTimeMillis()) {
+					Count += PlaceCount.get(p).values().iterator().next();
+				} else {
+					PlaceCount.get(p).clear();
+				}
+			} catch (Exception excep) {
 				PlaceCount.get(p).clear();
 			}
-		} else {
+		}
+		if (event.getBlockPlaced().getType() == Material.SCAFFOLDING) {
+			return new CheckResult("Impossible Place", true);
 		}
 		if (!PlaceCount.containsKey(p)) {
 			PlaceCount.put(p, new HashMap<Long, Integer>());
@@ -53,19 +60,19 @@ public class PlaceCheck extends Check {
 			R.put(PlaceCount.get(p).keySet().iterator().next(), Count);
 		}
 		PlaceCount.put(p, R);
-		if (Count > 10 && !VersionUtil.hasEfficiency(p)) {
+		if (Count > 12 && !VersionUtil.hasEfficiency(p)) {
 			event.setCancelled(true);
-			return new CheckResult("Fast Place (" + Count + "bps)", false);
+			return new CheckResult("Fast Place (12+ bps)", false);
 		}
 		Location placed = event.getBlockPlaced().getLocation();
 		Boolean call = false;
-		if (placed.distance(p.getTargetBlock(10).getLocation()) > 2.5) {
+		if (placed.distance(p.getTargetBlock(10).getLocation()) > 4.7) {
 			call = true;
 		}
 		if (call) {
-			return new CheckResult("Impossible Place (Not in LoS)", false);
+			return new CheckResult("Impossible Place", false);
 		} else {
-			return new CheckResult("Impossible Place / Fast Place", true);
+			return new CheckResult("Impossible Place", true);
 		}
 	}
 

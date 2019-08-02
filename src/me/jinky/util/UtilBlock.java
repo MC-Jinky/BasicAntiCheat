@@ -40,6 +40,17 @@ public class UtilBlock {
 
 	}
 
+	public static boolean climbable(Block block) {
+		Material m = block.getType();
+		if (m == Material.VINE)
+			return true;
+		if (m == Material.LADDER)
+			return true;
+		if (m == Material.SCAFFOLDING)
+			return true;
+		return false;
+	}
+
 	public static ArrayList<Block> getSurrounding(Block block, boolean diagonals) {
 		ArrayList<Block> blocks = new ArrayList<Block>();
 
@@ -155,6 +166,7 @@ public class UtilBlock {
 				Material beneath = loc.add(x, -1.5D, z).getBlock().getType();
 				if ((loc.getY() % 0.5D == 0.0D) && (beneath.toString().toLowerCase().contains("fence")
 						|| (beneath.toString().toLowerCase().contains("rod")
+								|| beneath.toString().toLowerCase().contains("bamboo")
 								|| beneath.toString().toLowerCase().contains("wall")))) {
 					return true;
 				}

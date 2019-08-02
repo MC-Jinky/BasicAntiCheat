@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 import me.jinky.Cenix;
 import me.jinky.checks.Check;
@@ -26,11 +27,15 @@ public class BoatCheck extends Check {
 			return new CheckResult("Boat Fly", true);
 
 		if (u.InVehicle() && u.getVehicle().getType() == EntityType.BOAT) {
-			if (u.getVehicleBlock().getType() == Material.AIR
-					&& UtilBlock.getSurroundingIgnoreAir(u.getBlock(), false).size() == 0) {
+			PlayerMoveEvent ev = (PlayerMoveEvent) e;
+			if (u.getVehicleBlock().getType() == Material.AIR && !UtilBlock.onBlock(u.getVehicle().getLocation())
+					&& UtilBlock.getSurroundingIgnoreAir(u.getVehicleBlock(), true).size() == 0) {
 				Location LastSafe = u.LastNormalBoatLoc();
+				if (ev.getTo().getY() < ev.getFrom().getY()) {
+					return new CheckResult("Boat Fly", true);
+				}
 				if (LastSafe != null) {
-					Cenix.getCenix().addExemptionBlock(u, 5);
+					Cenix.getCenix().EXEMPTHANDLER.addExemptionBlock(u.getPlayer(), 5);
 					Entity v = u.getVehicle();
 					u.eject();
 					u.teleport(LastSafe);
@@ -48,7 +53,7 @@ public class BoatCheck extends Check {
 				return new CheckResult("Boat Fly", false);
 			}
 		}
-		return new CheckResult("Fly", true);
+		return new CheckResult("Boat Fly", true);
 	}
 
 }
