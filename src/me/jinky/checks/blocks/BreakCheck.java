@@ -1,6 +1,8 @@
 package me.jinky.checks.blocks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -12,13 +14,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import me.jinky.Cenix;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
 import me.jinky.util.VersionUtil;
 
 public class BreakCheck extends Check {
+
+	@Override
+	public String getName() {
+		return "BreakCheck";
+	}
 
 	private static Map<Player, Map<Long, Integer>> BreakCount = new HashMap<Player, Map<Long, Integer>>();
 
@@ -27,15 +33,9 @@ public class BreakCheck extends Check {
 		return "BlockBreakEvent";
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public CheckResult performCheck(User u, Event e) {
-		if (!e.getEventName().equalsIgnoreCase(this.getEventCall())) {
-			Cenix.getCenix().console("§4There was an error with cenix!");
-			Cenix.getCenix().console("§4BreakCheck performCheck was called on a non-applicable event!");
-			Cenix.getCenix().console("§fRequired Event: " + this.getEventCall());
-			Cenix.getCenix().console("§fEvent fired upon: " + e.getEventName());
-			return new CheckResult("BreakCheck err.", true);
-		}
 		BlockBreakEvent event = (BlockBreakEvent) e;
 		Player p = u.getPlayer();
 		Boolean instant = false;
@@ -45,6 +45,22 @@ public class BreakCheck extends Check {
 				instant = true;
 			}
 		} catch (Exception ex) {
+		}
+		List<Material> l = new ArrayList<Material>();
+		l.add(Material.ACACIA_LEAVES);
+		l.add(Material.BIRCH_LEAVES);
+		l.add(Material.DARK_OAK_LEAVES);
+		l.add(Material.JUNGLE_LEAVES);
+		l.add(Material.OAK_LEAVES);
+		l.add(Material.SPRUCE_LEAVES);
+		l.add(Material.LEGACY_LEAVES);
+		l.add(Material.LEGACY_LEAVES_2);
+		if (p.getInventory().getItemInMainHand() != null) {
+			if (p.getInventory().getItemInMainHand().getType() == Material.SHEARS) {
+				if (l.contains(event.getBlock().getType())) {
+					instant = true;
+				}
+			}
 		}
 		if (p.getGameMode() == GameMode.CREATIVE) {
 			instant = true;
@@ -71,16 +87,23 @@ public class BreakCheck extends Check {
 				BreakCount.put(p, new HashMap<Long, Integer>());
 			}
 			BreakCount.put(p, R);
+			if (event.getBlock().getType().toString().contains("MUSHROOM")
+					|| event.getBlock().getType().toString().contains("SNOW")) {
+				return new CheckResult("Impossible Break", true, "Ignored blocks, different breaking speeds.");
+			}
+			if (event.getBlock().getType() == Material.BAMBOO) {
+				return new CheckResult("Impossible Break", true, "Ignored blocks, different breaking speeds.");
+			}
 			if (Bukkit.getPluginManager().getPlugin("GraviTree") != null
 					&& event.getBlock().getType().toString().contains("LOG")) {
-				return new CheckResult("Impossible Break / Fast Break", true);
+				return new CheckResult("Impossible Break", true, "Ignored blocks, GraviTree compatibility.");
 			}
 			if (Count > 9 && !VersionUtil.hasEfficiency(p)) {
 				event.setCancelled(true);
-				return new CheckResult("Fast Break (" + Count + "bps)", false);
+				return new CheckResult("Fast Break", false, "Broke too Fast");
 			}
 			if (VersionUtil.hasEfficiency(p)) {
-				return new CheckResult("Impossible/Fast Break", true);
+				return new CheckResult("Impossible Break", true, "Efficiency Effect");
 			}
 			Location placed = event.getBlock().getLocation();
 			Block target = p.getTargetBlock(15);
@@ -93,12 +116,12 @@ public class BreakCheck extends Check {
 				call = false;
 			}
 			if (call) {
-				return new CheckResult("Impossible/Fast Break", false);
+				return new CheckResult("Impossible Break", false, "Broke out of LoS");
 			} else {
-				return new CheckResult("Impossible/Fast Break", true);
+				return new CheckResult("Impossible Break", true, "Pass");
 			}
 		} else {
-			return new CheckResult("Impossible/Fast Break", true);
+			return new CheckResult("Impossible Break", true, "Pass");
 		}
 	}
 }

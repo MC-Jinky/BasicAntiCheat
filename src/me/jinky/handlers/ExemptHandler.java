@@ -5,17 +5,18 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
-import me.jinky.Cenix;
+import me.jinky.BAC;
 import me.jinky.util.MiniPlugin;
 
 public class ExemptHandler extends MiniPlugin {
 
-	public ExemptHandler(Cenix plugin) {
+	public ExemptHandler(BAC plugin) {
 		super("Exemption Handler", plugin);
 	}
 
 	private static Map<Player, Long> EXEMPT = new HashMap<Player, Long>();
 	private static Map<Player, Long> EXEMPT_BLOCK = new HashMap<Player, Long>();
+	private static Map<Player, String> EXEMPT_REASON = new HashMap<Player, String>();
 
 	public boolean isExemptBlock(Player p) {
 		if (EXEMPT_BLOCK.containsKey(p)) {
@@ -47,6 +48,9 @@ public class ExemptHandler extends MiniPlugin {
 				return true;
 			} else {
 				EXEMPT.remove(p);
+
+				if (EXEMPT_REASON.containsKey(p))
+					EXEMPT_REASON.remove(p);
 				return false;
 			}
 		}
@@ -56,16 +60,26 @@ public class ExemptHandler extends MiniPlugin {
 	public void removeExemption(Player p) {
 		if (EXEMPT.containsKey(p))
 			EXEMPT.remove(p);
+		if (EXEMPT_REASON.containsKey(p))
+			EXEMPT_REASON.remove(p);
 	}
 
-	public void addExemption(Player p, int ms) {
+	public String getExemptReason(Player p) {
+		if (EXEMPT_REASON.containsKey(p)) {
+			return EXEMPT_REASON.get(p);
+		}
+		return "unknown/notexempt";
+	}
+
+	public void addExemption(Player p, int ms, String s) {
 		if (isExemptBlock(p)) {
 			return;
 		}
 		if (isExempt(p))
 			removeExemption(p);
-
+		EXEMPT_REASON.put(p, s);
 		EXEMPT.put(p, System.currentTimeMillis() + ms);
+
 	}
 
 }

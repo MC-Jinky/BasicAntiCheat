@@ -1,37 +1,53 @@
-# 
-#   _____  ______  _   _  _____ __   __
-#  / ____||  ____|| \ | ||_   _|\ \ / /
-# | |     | |__   |  \| |  | |   \ V / 
-# | |     |  __|  | . ` |  | |    > <  
-# | |____ | |____ | |\  | _| |_  / . \ 
-#  \_____||______||_| \_||_____|/_/ \_\
-#                                      
-#                                      
-# 
-#
-#
-#
-enabled: true
+#If this is set to false, notifications will appear in chat
+action-bar-notifications: true
+
+#If the TPS drops below this number, any suspicion will be ignored! 
+tps-lag-threshold: 17.5
+
+#How long till each offense expires
+offense-expire-time: 40
+
+#This will cancel a player's action if they had suspicion for cheating
+cancel-on-offense: true
+
+
+#You can add a check into the disabled-checks list to disable it entirely.
+disabled-checks: []
+
+
+#This will not use a punish command on a specified hack. 
+#XRay is here by default due to it being in beta.
+#To allow punishments on all checks, uncomment the following line, and delete the old one.
+#no-punish-cmd: []
+no-punish-cmd: 
+    - XRay
 
 # This is for automatic command execution when a player reaches a certain amount of offenses.
 # List of available replacements to use in the command:
-# [USERNAME], [UUID], [DISPLAYNAME], [OFFENSES], [REPORTID] (if reports:true)
+# [USERNAME], [UUID], [DISPLAYNAME], [OFFENSES]
 # Color codes are supported.
+
 punish: false
-punish-offense-count: 7
 punish-command: 'kick [USERNAME] [OFFENSES]'
 
-action-bar-notifications: true
-tps-lag-threshold: 17.5
-offense-expire-time: 40
+#This is the punish offense count for each individual check, if this isn't set, it will default to 12 for the check that doesn't exist.
 
-#Prefix for all messages, don't include a space at the end
-prefix: '&8[&4Cenix&8]&7 '
-
-variable-color: '&6'
-suspicion-alert: '&7[DISPLAYNAME] failed [SUSPICION]: TPS: [TPS] PING: [PING] VL:[COUNT]'
-
-timezone: America/New_York
-
-
-cancel-on-offense: true
+Flight-punish-count: 20
+Speed-punish-count: 20
+WaterWalk-punish-count: 12
+Glide/SlowFall-punish-count: 7
+Spider-punish-count: 7
+FastClimb-punish-count: 9
+Boat Fly-punish-count: 10
+Kill Aura-punish-count: 10
+Multi Aura-punish-count: 12
+Reach-punish-count: 9
+Impossible Break-punish-count: 10
+Impossible Place-punish-count: 10
+Fast Place-punish-count: 10
+Fast Break-punish-count: 10
+XRay-punish-count: 8
+Anti-Cactus-punish-count: 14
+Anti-BerryBush-punish-count: 14
+MorePackets (Timer)-punish-count: 35
+MorePackets (Nuker)-punish-count: 75

@@ -6,15 +6,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import me.jinky.Cenix;
+import me.jinky.BAC;
 
 public abstract class MiniPlugin implements Listener {
 
 	protected String _moduleName = "Default";
 
-	protected Cenix _plugin;
+	protected BAC _plugin;
 
-	public MiniPlugin(String moduleName, Cenix plugin) {
+	public MiniPlugin(String moduleName, BAC plugin) {
 		this._moduleName = moduleName;
 		this._plugin = plugin;
 		onEnable();
@@ -34,7 +34,7 @@ public abstract class MiniPlugin implements Listener {
 		return this._plugin.getServer().getScheduler();
 	}
 
-	public Cenix getPlugin() {
+	public BAC getPlugin() {
 		return this._plugin;
 	}
 
@@ -63,6 +63,6 @@ public abstract class MiniPlugin implements Listener {
 	}
 
 	protected void log(String message) {
-		this.getPlugin().logFile(message);
+		Bukkit.getConsoleSender().sendMessage(message);
 	}
 }

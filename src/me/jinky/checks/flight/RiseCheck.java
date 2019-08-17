@@ -20,6 +20,11 @@ public class RiseCheck extends Check {
 	private static Map<Player, Map<Integer, Double>> RiseTicks = new HashMap<Player, Map<Integer, Double>>();
 
 	@Override
+	public String getName() {
+		return "RiseFlyCheck";
+	}
+
+	@Override
 	public String getEventCall() {
 		return "PlayerMoveEvent";
 	}
@@ -36,12 +41,12 @@ public class RiseCheck extends Check {
 		}
 		if (u.isBouncing() || bouncecheck
 				|| (p.isInsideVehicle() && p.getVehicle().getType().toString().contains("HORSE"))) {
-			return new CheckResult("Flight", true);
+			return new CheckResult("Flight", true, "pass");
 		}
 		if (u.getPlayer().hasPotionEffect(PotionEffectType.JUMP)
 				|| u.getPlayer().hasPotionEffect(PotionEffectType.SLOW_FALLING)
 				|| p.hasPotionEffect(PotionEffectType.LEVITATION)) {
-			return new CheckResult("Flight", true);
+			return new CheckResult("Flight", true, "pass");
 		}
 		if (RiseTicks.containsKey(p)) {
 			if (p.getLocation().getY() > RiseTicks.get(p).values().iterator().next() && !VersionUtil.isFlying(p)) {
@@ -62,12 +67,12 @@ public class RiseCheck extends Check {
 			Map<Integer, Double> R = new HashMap<Integer, Double>();
 			R.put(2, p.getLocation().getY());
 			RiseTicks.put(p, R);
-			return new CheckResult("Flight", false);
+			return new CheckResult("Flight", false, "rise (up)");
 		}
 		Map<Integer, Double> R = new HashMap<Integer, Double>();
 		R.put(Count, p.getLocation().getY());
 		RiseTicks.put(p, R);
-		return new CheckResult("Flight", true);
+		return new CheckResult("Flight", true, "pass");
 	}
 
 }

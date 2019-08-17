@@ -12,7 +12,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import me.jinky.Cenix;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.PlayerLogger;
@@ -24,6 +23,11 @@ import me.jinky.util.UtilTime;
 public class SpeedCheck extends Check {
 
 	@Override
+	public String getName() {
+		return "BasicSpeedCheck";
+	}
+
+	@Override
 	public String getEventCall() {
 		return "PlayerMoveEvent";
 	}
@@ -32,13 +36,6 @@ public class SpeedCheck extends Check {
 
 	@Override
 	public CheckResult performCheck(User u, Event ex) {
-		if (!ex.getEventName().equalsIgnoreCase(this.getEventCall())) {
-			Cenix.getCenix().console("§4There was an error with cenix!");
-			Cenix.getCenix().console("§4BreakCheck performCheck was called on a non-applicable event!");
-			Cenix.getCenix().console("§fRequired Event: " + this.getEventCall());
-			Cenix.getCenix().console("§fEvent fired upon: " + ex.getEventName());
-			return new CheckResult("SpeedCheck err.", true);
-		}
 		PlayerMoveEvent event = (PlayerMoveEvent) ex;
 		Integer Count = 0;
 		Player p = u.getPlayer();
@@ -52,7 +49,7 @@ public class SpeedCheck extends Check {
 			}
 
 			if (p.isGliding() || u.isBouncing() || u.isFalling() || u.getPlayer().isInsideVehicle()) {
-				return new CheckResult("Speed", true);
+				return new CheckResult("Speed", true, "pass");
 			}
 			if (UtilBlock.onBlock(p)) {
 				Limit = 0.56;
@@ -65,28 +62,17 @@ public class SpeedCheck extends Check {
 			}
 			if (PlayerLogger.getLogger().getLastElytraFly(p) != -1L) {
 				if (PlayerLogger.getLogger().getLastElytraFly(p) < 150) {
-					return new CheckResult("Speed", true);
+					return new CheckResult("Speed", true, "pass");
 				}
 			}
 			Boolean ice = false;
 			if (u.getBlockBelow().getType().toString().toLowerCase().contains("ice")) {
 				ice = true;
 			}
-
-			/*
-			 * For those wondering, this is for the 2 block height running speed-bug in
-			 * minecraft Makes you run (at highest) around 1.17, so I bumped up to 1.2 just
-			 * to be safe
-			 */
 			if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType().toString().contains("ICE")
 					|| p.getLocation().getBlock().getRelative(0, -2, 0).getType().toString().contains("ICE")) {
 				Limit += 2.0;
 			}
-
-			/*
-			 * TODO: Fix for flast elytra flight up/down when on ice, increases speed
-			 * slightly.
-			 */
 			if (ice && (p.isGliding() || u.LastElytraFly() <= 650)) {
 				Limit += 0.38D;
 			}
@@ -127,9 +113,10 @@ public class SpeedCheck extends Check {
 			}
 			if (call) {
 				if (!UtilBlock.onBlock(p)) {
-					return new CheckResult("Flight", false);
+					return new CheckResult("Flight", false,
+							"moved at a rate of " + Offset + ", max possible " + Limit + ", in air");
 				} else {
-					return new CheckResult("Speed", false);
+					return new CheckResult("Speed", false, "moved at a rate of " + Offset + ", max possible " + Limit);
 				}
 			}
 		} else {
@@ -140,7 +127,7 @@ public class SpeedCheck extends Check {
 			R.put(Count, System.currentTimeMillis());
 			SpeedTicks.put(p, R);
 		}
-		return new CheckResult("Speed", true);
+		return new CheckResult("Speed", true, "pass");
 	}
 
 }

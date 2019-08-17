@@ -6,6 +6,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -40,6 +42,29 @@ public class UtilBlock {
 
 	}
 
+	public static boolean isSwimming(Player p) {
+		if (p.isSwimming()) {
+			return true;
+		}
+		Material material = p.getLocation().getBlock().getType();
+		BlockData blockData = p.getLocation().getBlock().getBlockData();
+		if (material == Material.WATER || material == Material.LAVA
+				|| blockData instanceof Waterlogged && ((Waterlogged) blockData).isWaterlogged()) {
+			return true;
+		}
+		if (p.getLocation().getBlock().isLiquid()) {
+			return true;
+		}
+		if (getSurroundingMat(p.getLocation().getBlock(), true).contains(Material.WATER)) {
+			return true;
+		}
+		Material m = p.getLocation().getBlock().getType();
+		if (m == Material.KELP || m == Material.KELP_PLANT || m == Material.SEAGRASS || m == Material.TALL_SEAGRASS) {
+			return true;
+		}
+		return false;
+	}
+
 	public static boolean climbable(Block block) {
 		Material m = block.getType();
 		if (m == Material.VINE)
@@ -49,6 +74,32 @@ public class UtilBlock {
 		if (m == Material.SCAFFOLDING)
 			return true;
 		return false;
+	}
+
+	public static ArrayList<Material> getSurroundingMat(Block block, boolean diagonals) {
+		ArrayList<Material> blocks = new ArrayList<Material>();
+
+		if (diagonals) {
+			for (int x = -1; x <= 1; x++) {
+				for (int y = -1; y <= 1; y++) {
+					for (int z = -1; z <= 1; z++) {
+						if ((x != 0) || (y != 0) || (z != 0)) {
+
+							blocks.add(block.getRelative(x, y, z).getType());
+						}
+					}
+				}
+			}
+		} else {
+			blocks.add(block.getRelative(BlockFace.UP).getType());
+			blocks.add(block.getRelative(BlockFace.DOWN).getType());
+			blocks.add(block.getRelative(BlockFace.NORTH).getType());
+			blocks.add(block.getRelative(BlockFace.SOUTH).getType());
+			blocks.add(block.getRelative(BlockFace.EAST).getType());
+			blocks.add(block.getRelative(BlockFace.WEST).getType());
+		}
+
+		return blocks;
 	}
 
 	public static ArrayList<Block> getSurrounding(Block block, boolean diagonals) {
@@ -74,6 +125,42 @@ public class UtilBlock {
 			blocks.add(block.getRelative(BlockFace.WEST));
 		}
 
+		return blocks;
+	}
+
+	public static ArrayList<Block> xraysafe(Block block, Material ignoret) {
+		ArrayList<Block> blocks = new ArrayList<Block>();
+		ArrayList<Material> ignore = new ArrayList<Material>();
+		ignore.add(Material.STONE);
+		ignore.add(Material.EMERALD_ORE);
+		ignore.add(Material.COAL_ORE);
+		ignore.add(Material.REDSTONE_ORE);
+		ignore.add(Material.IRON_ORE);
+		ignore.add(Material.DIRT);
+		ignore.add(Material.LAPIS_ORE);
+		ignore.add(Material.GRAVEL);
+		ignore.add(Material.WATER);
+		ignore.add(Material.DIAMOND_ORE);
+		ignore.add(Material.DIORITE);
+		ignore.add(Material.GRANITE);
+		ignore.add(Material.ANDESITE);
+		ignore.add(Material.LAVA);
+
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+				for (int z = -1; z <= 1; z++) {
+					if ((x != 0) || (y != 0) || (z != 0)) {
+
+						if ((!ignore.contains(block.getRelative(x, y, z).getType())
+								&& block.getRelative(x, y, z).getType() != ignoret)
+								|| block.getRelative(x, y, z).getType() == Material.AIR
+								|| block.getRelative(x, y, z).getType() == Material.CAVE_AIR) {
+							blocks.add(block.getRelative(x, y, z));
+						}
+					}
+				}
+			}
+		}
 		return blocks;
 	}
 

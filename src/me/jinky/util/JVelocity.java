@@ -32,6 +32,14 @@ public class JVelocity {
 		return round(tx - fx, 3);
 	}
 
+	public double offsetnoy() {
+		Location fc = f.clone();
+		Location dc = d.clone();
+		fc.setY(0);
+		dc.setY(0);
+		return round(fc.distance(dc), 3);
+	}
+
 	public double offset() {
 		return round(f.distance(d), 3);
 	}

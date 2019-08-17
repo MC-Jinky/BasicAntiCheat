@@ -1,5 +1,5 @@
-name: Cenix
-version: 1.5.3
+name: BasicAntiCheat
+version: 1.0.0
 author: [Jinky]
-main: me.jinky.Cenix
+main: me.jinky.BAC
 api-version: 1.13

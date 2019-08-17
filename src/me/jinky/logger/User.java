@@ -58,6 +58,10 @@ public class User {
 		return getBlock().getRelative(BlockFace.DOWN);
 	}
 
+	public void updateLastOffense() {
+		PlayerLogger.getLogger().updateLastOffense(p);
+	}
+
 	public boolean InVehicle() {
 		return p.isInsideVehicle();
 	}
@@ -80,10 +84,6 @@ public class User {
 
 	public Long getLastSprint() {
 		return PlayerLogger.getLogger().getLastSprint(p);
-	}
-
-	public Location LastGroundLocation() {
-		return PlayerLogger.getLogger().getLastGroundLocation(p);
 	}
 
 	public Location LastRegularLocation() {

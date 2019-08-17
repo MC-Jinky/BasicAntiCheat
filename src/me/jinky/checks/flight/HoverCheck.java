@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 
-import me.jinky.Cenix;
+import me.jinky.BAC;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
@@ -17,6 +17,11 @@ import me.jinky.util.UtilBlock;
 import me.jinky.util.VersionUtil;
 
 public class HoverCheck extends Check {
+
+	@Override
+	public String getName() {
+		return "HoverFlyCheck";
+	}
 
 	@Override
 	public String getEventCall() {
@@ -45,15 +50,15 @@ public class HoverCheck extends Check {
 			Map<Integer, Double> R = new HashMap<Integer, Double>();
 			R.put(0, p.getLocation().getY());
 			HoverTicks.put(p, R);
-			Cenix.getCenix().EXEMPTHANDLER.addExemptionBlock(p, 20);
-			return new CheckResult("Flight", false);
+			BAC.getBAC().EXEMPTHANDLER.addExemptionBlock(p, 20);
+			return new CheckResult("Flight", false, "hover");
 		} else {
 			Map<Integer, Double> R = new HashMap<Integer, Double>();
 			if (Count == 2)
 				Count = 1;
 			R.put(Count, p.getLocation().getY());
 			HoverTicks.put(p, R);
-			return new CheckResult("Flight", true);
+			return new CheckResult("Flight", true, "pass");
 		}
 	}
 

@@ -1,40 +1,28 @@
 package me.jinky;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import me.jinky.checks.Check;
-import me.jinky.checks.CheckResult;
 import me.jinky.checks.blocks.BreakCheck;
 import me.jinky.checks.blocks.PlaceCheck;
 import me.jinky.checks.combat.KillAuraCheck;
@@ -46,26 +34,32 @@ import me.jinky.checks.flight.HoverCheck;
 import me.jinky.checks.flight.RiseCheck;
 import me.jinky.checks.flight.SmartFlightCheck;
 import me.jinky.checks.flight.WaterCheck;
+import me.jinky.checks.movement.EntitySpeedCheck;
 import me.jinky.checks.movement.SmartSpeedCheck;
 import me.jinky.checks.movement.SpeedCheck;
-import me.jinky.command.CenixCmd;
+import me.jinky.checks.world.AntiCactusBerryCheck;
+import me.jinky.checks.world.XRayCheck;
+import me.jinky.command.BACCmd;
 import me.jinky.fwk.CommandFramework;
+import me.jinky.handlers.BlockHandler;
 import me.jinky.handlers.CStatsHandler;
 import me.jinky.handlers.DamageHandler;
 import me.jinky.handlers.ExemptHandler;
+import me.jinky.handlers.MovementHandler;
 import me.jinky.logger.PlayerLogger;
 import me.jinky.logger.User;
+import me.jinky.util.UtilMath;
 
-public class Cenix extends JavaPlugin implements Listener {
+public class BAC extends JavaPlugin implements Listener {
 
 	private static Object antiLock = new Object();
-	public static Cenix core = null;
+	public static BAC core = null;
 	public static CommandFramework _fw = null;
 
 	public List<Player> nonotify = new ArrayList<Player>();
 	private static Map<Player, HashMap<Long, String>> reports = new HashMap<Player, HashMap<Long, String>>();
 
-	private static List<Check> All_Checks = new ArrayList<Check>();
+	public List<Check> All_Checks = new ArrayList<Check>();
 
 	public DamageHandler DAMAGEHANDLER = null;
 	public ExemptHandler EXEMPTHANDLER = null;
@@ -74,37 +68,41 @@ public class Cenix extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		core = this;
+
 		saveDefaultConfig();
 
 		_fw = new CommandFramework(this);
-		_fw.registerCommands(new CenixCmd());
+		_fw.registerCommands(new BACCmd());
 
-		this.registerCheck(new SpeedCheck());
-		this.registerCheck(new SmartFlightCheck());
-		this.registerCheck(new SmartSpeedCheck());
-		this.registerCheck(new BreakCheck());
-		this.registerCheck(new PlaceCheck());
-		this.registerCheck(new KillAuraCheck());
-		this.registerCheck(new MultiAuraCheck());
-		this.registerCheck(new BoatCheck());
-		this.registerCheck(new WaterCheck());
-		this.registerCheck(new HoverCheck());
-		this.registerCheck(new RiseCheck());
-		this.registerCheck(new FloatCheck());
-		this.registerCheck(new ReachCheck());
 		DAMAGEHANDLER = new DamageHandler(this);
 		EXEMPTHANDLER = new ExemptHandler(this);
 		CSTATSHANDLER = new CStatsHandler(this);
+		new MovementHandler(this);
+		new BlockHandler(this);
+		new PlayerLogger(this);
 
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		this.getServer().getPluginManager().registerEvents(this, this);
-		this.getServer().getPluginManager().registerEvents(new PlayerLogger(), this);
 		Settings.loadConfig();
-		if (Bukkit.getOnlinePlayers().size() > 0) {
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				EXEMPTHANDLER.addExemption(p, 2000);
-			}
-		}
+
+		Bukkit.getScheduler().runTaskLater(this, () -> {
+			this.registerCheck(new SpeedCheck());
+			this.registerCheck(new SmartFlightCheck());
+			this.registerCheck(new SmartSpeedCheck());
+			this.registerCheck(new BreakCheck());
+			this.registerCheck(new PlaceCheck());
+			this.registerCheck(new KillAuraCheck());
+			this.registerCheck(new MultiAuraCheck());
+			this.registerCheck(new BoatCheck());
+			this.registerCheck(new WaterCheck());
+			this.registerCheck(new HoverCheck());
+			this.registerCheck(new RiseCheck());
+			this.registerCheck(new FloatCheck());
+			this.registerCheck(new ReachCheck());
+			this.registerCheck(new EntitySpeedCheck());
+			this.registerCheck(new XRayCheck());
+			this.registerCheck(new AntiCactusBerryCheck());
+		}, 100L);
 
 	}
 
@@ -140,12 +138,12 @@ public class Cenix extends JavaPlugin implements Listener {
 			All_Checks.add(check);
 	}
 
-	public void sendMessage(Player p, String msg) {
-		p.sendMessage(Settings.PREFIX + " " + msg);
-	}
-
-	public void sendMessageBAR(Player p, String msg) {
-		p.sendActionBar(Settings.PREFIX + " " + msg);
+	public void sendMessage(Player p, String msg, Boolean actionbar) {
+		if (actionbar) {
+			p.sendActionBar(Settings.PREFIX + " " + msg);
+		} else {
+			p.sendMessage(Settings.PREFIX + " " + msg);
+		}
 	}
 
 	@Override
@@ -156,7 +154,7 @@ public class Cenix extends JavaPlugin implements Listener {
 		return _fw.handleCommand(sender, label, command, args);
 	}
 
-	public static Cenix getCenix() {
+	public static BAC getBAC() {
 		return core;
 	}
 
@@ -170,73 +168,6 @@ public class Cenix extends JavaPlugin implements Listener {
 
 	public void console(String msg) {
 		Bukkit.getConsoleSender().sendMessage(Settings.PREFIX + " " + msg);
-	}
-
-	@EventHandler(ignoreCancelled = true)
-	public void onMove(PlayerMoveEvent event) {
-		if (Settings.ENABLED == false || event.getPlayer().getGameMode() == GameMode.CREATIVE
-				|| event.getPlayer().getGameMode() == GameMode.SPECTATOR) {
-			return;
-		}
-		if (!EXEMPTHANDLER.isExempt(event.getPlayer())) {
-			for (Check c : All_Checks) {
-				if (c.getEventCall().equals(event.getEventName())) {
-					CheckResult result = c.performCheck(this.getUser(event.getPlayer()), event);
-					if (!result.passed()) {
-						event.setCancelled(this.addSuspicion(event.getPlayer(), result.getCheckName()));
-					}
-				}
-			}
-		}
-
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onPlace(BlockPlaceEvent event) {
-		if (Settings.ENABLED == false) {
-			return;
-		}
-		for (Check c : All_Checks) {
-			if (c.getEventCall().equals(event.getEventName())) {
-				CheckResult result = c.performCheck(this.getUser(event.getPlayer()), event);
-				if (!result.passed()) {
-					event.setCancelled(this.addSuspicion(event.getPlayer(), result.getCheckName()));
-				}
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onDamage(EntityDamageByEntityEvent event) {
-		if (Settings.ENABLED == false) {
-			return;
-		}
-		if (event.getDamager() instanceof Player) {
-			Player p = (Player) event.getDamager();
-			for (Check c : All_Checks) {
-				if (c.getEventCall().equals(event.getEventName())) {
-					CheckResult result = c.performCheck(this.getUser(p), event);
-					if (!result.passed()) {
-						event.setCancelled(this.addSuspicion(p, result.getCheckName()));
-					}
-				}
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onBreak(BlockBreakEvent event) {
-		if (Settings.ENABLED == false) {
-			return;
-		}
-		for (Check c : All_Checks) {
-			if (c.getEventCall().equals(event.getEventName())) {
-				CheckResult result = c.performCheck(this.getUser(event.getPlayer()), event);
-				if (!result.passed()) {
-					event.setCancelled(this.addSuspicion(event.getPlayer(), result.getCheckName()));
-				}
-			}
-		}
 	}
 
 	private boolean updateDatabase(Player p) {
@@ -258,42 +189,64 @@ public class Cenix extends JavaPlugin implements Listener {
 					reports.get(p).remove(r);
 				}
 			}
-			if (reports.get(p).size() >= Settings.PUNISH_OFFENSE_COUNT && Settings.PUNISH) {
-				String m = Settings.PUNISH_COMMAND;
-				m = m.replaceAll("\\[VARIABLE_COLOR\\]", Settings.VARIABLE_COLOR);
-				m = m.replaceAll("\\[DISPLAYNAME\\]", p.getDisplayName());
-				m = m.replaceAll("\\[USERNAME\\]", p.getName());
-				m = m.replaceAll("\\[NAME\\]", p.getName());
-				m = m.replaceAll("\\[UUID\\]", p.getUniqueId().toString());
-				Bukkit.getServer().dispatchCommand(getServer().getConsoleSender(), m);
+
+			Boolean punishsusc = false;
+			Map<String, Integer> pdata = CStatsHandler.UC.get(p.getUniqueId());
+			Integer susc = 0;
+			String check = "";
+			for (Entry<String, Integer> v : pdata.entrySet()) {
+				susc += v.getValue();
+				if (Settings.ALL_CHECKS.containsKey(v.getKey())) {
+					Integer cc = v.getValue();
+					Integer limit = Settings.ALL_CHECKS.get(v.getKey());
+					if (limit <= cc) {
+						check = v.getKey();
+						punishsusc = true;
+					}
+				}
+			}
+
+			if (punishsusc && Settings.PUNISH && !Settings.NO_PUNISH_CHECKS.contains(check)) {
+				BAC.getBAC().EXEMPTHANDLER.addExemption(p, 5000, "Punishment Applied");
+
+				Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+					String reportslist = "";
+					Map<String, Integer> od = new HashMap<String, Integer>();
+					for (String s : reports.get(p).values()) {
+						Integer count = 1;
+						if (od.containsKey(s)) {
+							count = od.get(s) + 1;
+							od.remove(s);
+						}
+						od.put(s, count);
+					}
+					for (Entry<String, Integer> e : od.entrySet()) {
+						reportslist = reportslist + e.getKey() + "(" + e.getValue() + "), ";
+					}
+					reportslist = reportslist.substring(0, reportslist.length() - 2);
+					p.setVelocity(new Vector(0, 0, 0));
+					String pid = CStatsHandler.Punish(p.getUniqueId());
+					for (String se : Settings.PUNISH_COMMAND) {
+						String m = se;
+						m = m.replaceAll("\\[VARIABLE_COLOR\\]", Settings.VARIABLE_COLOR);
+						m = m.replaceAll("\\[DISPLAYNAME\\]", p.getDisplayName());
+						m = m.replaceAll("\\[USERNAME\\]", p.getName());
+						m = m.replaceAll("\\[NAME\\]", p.getName());
+						m = m.replaceAll("\\[UUID\\]", p.getUniqueId().toString());
+						m = m.replaceAll("\\[OFFENSES\\]", reportslist);
+						m = m.replaceAll("\\[PID\\]", pid);
+						final String me = m;
+						Bukkit.getScheduler().runTask(BAC.getBAC(), () -> {
+							Bukkit.getServer().dispatchCommand(getServer().getConsoleSender(), me);
+						});
+					}
+				});
 				return true;
 			} else {
 				return false;
 			}
 		}
-	}
 
-	public void logFile(String line) {
-		if (Settings.LOG_OFFENSES) {
-			try {
-				FileWriter fw = new FileWriter(new File(this.getDataFolder(), "offenses.txt"), true);
-				PrintWriter pw = new PrintWriter(fw);
-				Date d = new Date();
-				SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss a");
-				try {
-					sdf.setTimeZone(TimeZone.getTimeZone(Settings.TIMEZONE));
-				} catch (Exception e) {
-					this.console("§c'timezone' is not a valid Time Zone! Defaulting to America/New_York");
-					Settings.TIMEZONE = "America/New_York";
-				}
-				pw.println("[" + sdf.format(d).toLowerCase().replaceAll(" am", "am").replaceAll(" pm", "pm") + "] "
-						+ line);
-				pw.flush();
-				pw.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public static int getPing(Player p) {
@@ -315,12 +268,26 @@ public class Cenix extends JavaPlugin implements Listener {
 		if (Settings.ENABLED == false) {
 			return false;
 		}
+		if (Settings.DISABLED_CHECKS.contains(detector)) {
+			return false;
+		}
 
 		if (!reports.containsKey(p))
 			reports.put(p, new HashMap<Long, String>());
 
 		if (EXEMPTHANDLER.isExempt(p)) {
 			return false;
+		}
+		this.getUser(p).updateLastOffense();
+		if (Settings.CANCEL_ON_OFFENSE) {
+			EXEMPTHANDLER.addExemptionBlock(p, 100);
+			if (detector.equalsIgnoreCase("Anti-Cactus") || detector.equalsIgnoreCase("Anti-BerryBush")) {
+				p.damage(0.5D);
+			} else if (detector.equalsIgnoreCase("WaterWalk")) {
+				p.teleport(p.getLocation().add(0, -0.5, 0));
+			} else {
+				p.teleport(this.getUser(p).LastRegularLocation());
+			}
 		}
 
 		int ping = 0;
@@ -348,31 +315,31 @@ public class Cenix extends JavaPlugin implements Listener {
 		if (Count <= 2) {
 			return false;
 		}
-		CSTATSHANDLER.OC++;
-		if (!CSTATSHANDLER.CC.containsKey(detector)) {
-			CSTATSHANDLER.CC.put(detector, 1);
+		CStatsHandler.OC++;
+		if (!CStatsHandler.CC.containsKey(detector)) {
+			CStatsHandler.CC.put(detector, 1);
 		} else {
-			CSTATSHANDLER.CC.put(detector, CSTATSHANDLER.CC.get(detector) + 1);
+			CStatsHandler.CC.put(detector, CStatsHandler.CC.get(detector) + 1);
 		}
 
 		if (Lag.getTPS() <= Settings.TPS_LAG_THRESHOLD || ping >= 125) {
 			return false;
 		}
 		Integer c = 1;
-		if (CSTATSHANDLER.MS.containsKey(p.getName() + " - " + p.getUniqueId()))
-			c = CSTATSHANDLER.MS.get(p.getName() + " - " + p.getUniqueId());
+		if (CStatsHandler.MS.containsKey(p.getName() + " - " + p.getUniqueId()))
+			c = CStatsHandler.MS.get(p.getName() + " - " + p.getUniqueId());
 
 		c++;
-		if (!CSTATSHANDLER.UC.containsKey(p.getUniqueId()))
-			CSTATSHANDLER.UC.put(p.getUniqueId(), new HashMap<String, Integer>());
+		if (!CStatsHandler.UC.containsKey(p.getUniqueId()))
+			CStatsHandler.UC.put(p.getUniqueId(), new HashMap<String, Integer>());
 
 		UUID uuid = p.getUniqueId();
-		if (!CSTATSHANDLER.UC.get(uuid).containsKey(detector)) {
-			CSTATSHANDLER.UC.get(uuid).put(detector, 1);
+		if (!CStatsHandler.UC.get(uuid).containsKey(detector)) {
+			CStatsHandler.UC.get(uuid).put(detector, 1);
 		} else {
-			CSTATSHANDLER.UC.get(uuid).put(detector, CSTATSHANDLER.UC.get(uuid).get(detector) + 1);
+			CStatsHandler.UC.get(uuid).put(detector, CStatsHandler.UC.get(uuid).get(detector) + 1);
 		}
-		CSTATSHANDLER.MS.put(p.getName() + " - " + p.getUniqueId(), c);
+		CStatsHandler.MS.put(p.getName() + " - " + p.getUniqueId(), c);
 
 		if (updateDatabase(p)) {
 			return false;
@@ -387,27 +354,29 @@ public class Cenix extends JavaPlugin implements Listener {
 		m = m.replaceAll("\\[COUNT\\]", Count - 2 + "");
 		m = m.replaceAll("\\[PING\\]", ping + "");
 		m = m.replaceAll("\\[TPS\\]", Lag.getNiceTPS() + "");
+		m = m.replaceAll("\\[X\\]", UtilMath.trim(2, p.getLocation().getX()) + "");
+		m = m.replaceAll("\\[Y\\]", UtilMath.trim(2, p.getLocation().getY()) + "");
+		m = m.replaceAll("\\[Z\\]", UtilMath.trim(2, p.getLocation().getZ()) + "");
+		m = m.replaceAll("\\[WORLD\\]", p.getWorld().getName());
 
-		broadcast(m);
+		broadcast(p, m);
 
 		return Settings.CANCEL_ON_OFFENSE;
 	}
 
-	public void broadcast(String... msgs) {
+	public void broadcast(Player p, String... msgs) {
 		for (String m : msgs) {
 			console(m);
 		}
 		for (Player s : Bukkit.getOnlinePlayers()) {
-			if ((s.hasPermission("cenix.notify") && !nonotify.contains(s))) {
+			if ((s.hasPermission("bac.verbose") && !nonotify.contains(s))) {
 				for (String m : msgs) {
-					if (Settings.ABN) {
-						this.sendMessageBAR(s, m);
-					} else {
-						this.sendMessage(s, m);
-					}
+					this.sendMessage(s, m, Settings.ABN);
+
 				}
 			}
 		}
+
 	}
 
 	@EventHandler
@@ -417,7 +386,6 @@ public class Cenix extends JavaPlugin implements Listener {
 			reports.remove(p);
 		if (EXEMPTHANDLER.isExempt(p))
 			EXEMPTHANDLER.removeExemption(p);
-
 	}
 
 }

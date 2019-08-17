@@ -1,19 +1,26 @@
 package me.jinky.checks.movement;
 
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffectType;
 
-import me.jinky.Cenix;
+import me.jinky.BAC;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
 import me.jinky.util.JVelocity;
+import me.jinky.util.UtilBlock;
 
 public class SmartSpeedCheck extends Check {
+
+	@Override
+	public String getName() {
+		return "SmartSpeedCheck";
+	}
 
 	@Override
 	public String getEventCall() {
@@ -35,8 +42,8 @@ public class SmartSpeedCheck extends Check {
 		Double lxz = -0.672;
 
 		if (p.isInsideVehicle() || p.isFlying() || p.isGliding() || p.getGameMode() == GameMode.CREATIVE
-				|| p.getGameMode() == GameMode.SPECTATOR || Cenix.getCenix().getUser(p).isBouncing())
-			return new CheckResult("SmartSpeed", true);
+				|| p.getGameMode() == GameMode.SPECTATOR || BAC.getBAC().getUser(p).isBouncing())
+			return new CheckResult("SmartSpeed", true, "pass");
 
 		if (p.hasPotionEffect(PotionEffectType.JUMP)) {
 			my += 0.10 * p.getPotionEffect(PotionEffectType.JUMP).getAmplifier();
@@ -59,8 +66,8 @@ public class SmartSpeedCheck extends Check {
 			my += 0.25;
 		}
 
-		if (Cenix.getCenix().EXEMPTHANDLER.isExempt(p)) {
-			return new CheckResult("SmartSpeed", true);
+		if (BAC.getBAC().EXEMPTHANDLER.isExempt(p)) {
+			return new CheckResult("SmartSpeed", true, "pass");
 		}
 
 		Boolean speed = false;
@@ -74,17 +81,25 @@ public class SmartSpeedCheck extends Check {
 			speed = true;
 		}
 		if (y > my) {
-			return new CheckResult("Flight", false);
+			if (event.getTo().add(0, -0.173, 0).getBlock().getType() != Material.AIR) {
+				return new CheckResult("Step", false,
+						"y increased too fast up a block (" + y + "), max possible: " + my);
+			}
+			return new CheckResult("Flight", false, "y increased too fast (" + y + "), max possible: " + my);
 		}
 		if (z > mxz) {
 			speed = true;
 		}
 
 		if (speed) {
-			return new CheckResult("Speed", false);
+			if (UtilBlock.getSurroundingIgnoreAir(p.getLocation().getBlock(), true).size() == 0) {
+				return new CheckResult("Flight", false, "impossible move, no fall");
+			} else {
+				return new CheckResult("Speed", false, "movement speed to high");
+			}
 		}
 
-		return new CheckResult("Speed/Flight", true);
+		return new CheckResult("Speed/Flight", true, "pass");
 	}
 
 }

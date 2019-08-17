@@ -15,14 +15,22 @@ public class Lag implements Runnable {
 		if (TICK_COUNT < ticks) {
 			return 20.0D;
 		}
-		int target = (TICK_COUNT - 1 - ticks) % TICKS.length;
-		long elapsed = System.currentTimeMillis() - TICKS[target];
+		try {
+			int target = (TICK_COUNT - 1 - ticks) % TICKS.length;
+			long elapsed = System.currentTimeMillis() - TICKS[target];
 
-		return ticks / (elapsed / 1000.0D);
+			return ticks / (elapsed / 1000.0D);
+		} catch (Exception e) {
+			return 20.0D;
+		}
 	}
 
 	public static double getNiceTPS() {
-		return UtilMath.trim(2, getTPS());
+		try {
+			return UtilMath.trim(2, getTPS());
+		} catch (Exception e) {
+			return getTPS();
+		}
 	}
 
 	public static long getElapsed(int tickID) {

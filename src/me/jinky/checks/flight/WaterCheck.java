@@ -1,110 +1,71 @@
 package me.jinky.checks.flight;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-import me.jinky.Cenix;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
 import me.jinky.util.UtilBlock;
-import me.jinky.util.Utilities;
 
 public class WaterCheck extends Check {
+
+	@Override
+	public String getName() {
+		return "JesusCheck";
+	}
 
 	@Override
 	public String getEventCall() {
 		return "PlayerMoveEvent";
 	}
 
-	private static Map<Player, Map<Integer, Double>> FloatTicks = new HashMap<Player, Map<Integer, Double>>();
+	private static Map<Player, Long> lastcheck = new HashMap<Player, Long>();
+	private static Map<Player, Integer> count = new HashMap<Player, Integer>();
 
 	@Override
 	public CheckResult performCheck(User u, Event ev) {
 		Player p = u.getPlayer();
-		int Count = 0;
-		if (FloatTicks.containsKey(p)) {
-			Count = FloatTicks.get(p).keySet().iterator().next() + 1;
-			if (isWaterWalking(p, ev)) {
-				Count++;
+		if (!lastcheck.containsKey(p)) {
+			lastcheck.put(p, 0L);
+			count.put(p, 0);
+		}
+		Long math = (System.currentTimeMillis() - lastcheck.get(p));
+		if (math > 450) {
+			int oc = count.get(p);
+			Boolean waterwalk = true;
+			if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.WATER) {
+				return new CheckResult("WaterWalk", true, "player isn't above water");
+			}
+			if (p.getLocation().getBlock().isLiquid() || p.isSwimming()) {
+				waterwalk = false;
+				count.put(p, 0);
+				return new CheckResult("WaterWalk", true, "player is swimming");
+			}
+			for (Material m : UtilBlock.getSurroundingMat(p.getLocation().getBlock(), true)) {
+				if (m != Material.WATER && m != Material.AIR) {
+					waterwalk = false;
+				}
+			}
+			if (waterwalk) {
+				oc++;
+				count.put(p, oc);
 			} else {
-				Count--;
+				count.put(p, 0);
+			}
+			lastcheck.put(p, System.currentTimeMillis());
+			if (oc > 12) {
+				return new CheckResult("WaterWalk", false, "floating above, not swimming");
 			}
 		}
 
-		if (Count > 15) {
-			Map<Integer, Double> R = new HashMap<Integer, Double>();
-			R.put(0, p.getLocation().getY());
-			FloatTicks.put(p, R);
-			Map<Integer, Double> RE = new HashMap<Integer, Double>();
-			int nc = Count;
-			nc--;
-			if (nc < 0) {
-				nc = 0;
-			}
-			RE.put(5, p.getLocation().getY());
-			FloatTicks.put(p, RE);
-			return new CheckResult("WaterWalk", false);
-		}
-		Map<Integer, Double> RE = new HashMap<Integer, Double>();
-		int nc = Count;
-		nc--;
-		if (nc < 0) {
-			nc = 0;
-		}
-		if (p.getLocation().getBlock().getRelative(BlockFace.UP).getType() == Material.WATER
-				&& p.getLocation().getBlock().getType() == Material.WATER) {
-			nc = 0;
-		}
-		RE.put(nc, p.getLocation().getY());
-		FloatTicks.put(p, RE);
-		return new CheckResult("WaterWalk", true);
+		return new CheckResult("WaterWalk", true, "pass");
 
-	}
-
-	public boolean isWaterWalking(Player p, Event ev) {
-		User u = Cenix.getCenix().getUser(p);
-		List<Block> b = UtilBlock.getSurroundingIgnoreAir(u.getBlock(), true);
-		boolean sneak = false;
-		boolean haswater = false;
-		for (Block be : b) {
-			if (be.getType() == Material.WATER) {
-				haswater = true;
-			}
-			if (be.getLocation().getY() < u.getBlock().getY() && be.getType() != Material.WATER
-					&& be.getType() != Material.KELP) {
-				sneak = true;
-			}
-		}
-
-		if (haswater == false) {
-			return false;
-		}
-		double vel = p.getVelocity().getY();
-		if (vel < 0) {
-			vel = (vel + vel + vel);
-		}
-		if (p.getLocation().getBlock().getRelative(BlockFace.UP).getType() == Material.WATER
-				&& p.getLocation().getBlock().getType() == Material.WATER) {
-			return false;
-		}
-
-		if (!sneak
-				&& ((p.getLocation().getY() + "").contains(".00250") || (p.getLocation().getY() + "").contains(".99"))
-				&& !Utilities.isOnEntity(p, EntityType.BOAT) && !Utilities.isOnLilyPad(p) && !Utilities.isOnSteps(p)
-				&& !Utilities.isOnVine(p) && !Utilities.isGlidingWithElytra(p)
-				&& !u.getBlock().getType().toString().contains("CARPET")) {
-			return true;
-		}
-		return false;
 	}
 
 }

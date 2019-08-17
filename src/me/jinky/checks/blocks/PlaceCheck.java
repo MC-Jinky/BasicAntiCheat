@@ -9,13 +9,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import me.jinky.Cenix;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
+import me.jinky.util.UtilMath;
 import me.jinky.util.VersionUtil;
 
 public class PlaceCheck extends Check {
+
+	@Override
+	public String getName() {
+		return "Place Check";
+	}
 
 	private static Map<Player, Map<Long, Integer>> PlaceCount = new HashMap<Player, Map<Long, Integer>>();
 
@@ -26,13 +31,6 @@ public class PlaceCheck extends Check {
 
 	@Override
 	public CheckResult performCheck(User u, Event e) {
-		if (!e.getEventName().equalsIgnoreCase(this.getEventCall())) {
-			Cenix.getCenix().console("§4There was an error with cenix!");
-			Cenix.getCenix().console("§4BreakCheck performCheck was called on a non-applicable event!");
-			Cenix.getCenix().console("§fRequired Event: " + this.getEventCall());
-			Cenix.getCenix().console("§fEvent fired upon: " + e.getEventName());
-			return new CheckResult("PlaceCheck err.", true);
-		}
 		BlockPlaceEvent event = (BlockPlaceEvent) e;
 		Player p = u.getPlayer();
 		int Count = 1;
@@ -48,7 +46,7 @@ public class PlaceCheck extends Check {
 			}
 		}
 		if (event.getBlockPlaced().getType() == Material.SCAFFOLDING) {
-			return new CheckResult("Impossible Place", true);
+			return new CheckResult("Impossible Place", true, "Scaffolding Ignored");
 		}
 		if (!PlaceCount.containsKey(p)) {
 			PlaceCount.put(p, new HashMap<Long, Integer>());
@@ -62,7 +60,7 @@ public class PlaceCheck extends Check {
 		PlaceCount.put(p, R);
 		if (Count > 12 && !VersionUtil.hasEfficiency(p)) {
 			event.setCancelled(true);
-			return new CheckResult("Fast Place (12+ bps)", false);
+			return new CheckResult("Fast Place", false, "placed at a rate of 12+bps");
 		}
 		Location placed = event.getBlockPlaced().getLocation();
 		Boolean call = false;
@@ -70,9 +68,11 @@ public class PlaceCheck extends Check {
 			call = true;
 		}
 		if (call) {
-			return new CheckResult("Impossible Place", false);
+			return new CheckResult("Impossible Place", false,
+					"Placed " + UtilMath.trim(1, placed.distance(p.getTargetBlock(10).getLocation()))
+							+ " blocks away from crosshair");
 		} else {
-			return new CheckResult("Impossible Place", true);
+			return new CheckResult("Impossible Place", true, "Pass");
 		}
 	}
 

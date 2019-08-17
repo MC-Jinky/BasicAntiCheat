@@ -1,8 +1,5 @@
 package me.jinky.checks.combat;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -14,7 +11,10 @@ import me.jinky.logger.User;
 
 public class KillAuraCheck extends Check {
 
-	private static Map<Player, Long> lastCheck = new HashMap<Player, Long>();
+	@Override
+	public String getName() {
+		return "AuraCheck";
+	}
 
 	@Override
 	public String getEventCall() {
@@ -25,16 +25,13 @@ public class KillAuraCheck extends Check {
 	public CheckResult performCheck(User u, Event ex) {
 		Player p = u.getPlayer();
 		if (p.isBlocking()) {
-			return new CheckResult("Impossible Fight (Combat while Blocking)", false);
+			return new CheckResult("Impossible Fight", false, "player is blocking + attacking");
 		}
 		if (p.isSleeping()) {
-			return new CheckResult("Impossible Fight (Combat while Sleeping)", false);
+			return new CheckResult("Impossible Fight", false, "player is sleeping");
 		}
 		if (p.isDead()) {
-			return new CheckResult("Impossible Fight (Combat while Dead)", false);
-		}
-		if (!lastCheck.containsKey(p)) {
-			lastCheck.put(p, System.currentTimeMillis() - 500);
+			return new CheckResult("Impossible Fight", false, "player is dead");
 		}
 
 		EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) ex;
@@ -42,10 +39,10 @@ public class KillAuraCheck extends Check {
 		Location possible = event.getDamager().getLocation().getDirection().multiply(-2.2)
 				.toLocation(event.getDamager().getWorld());
 
-		if (hit.distance(possible) <= 1.1) {
-			return new CheckResult("Kill Aura", false);
+		if (hit.distance(possible) <= 0.85) {
+			return new CheckResult("Kill Aura", false, "hit target not in sight");
 		}
-		return new CheckResult("Kill Aura", true);
+		return new CheckResult("Kill Aura", true, "pass");
 	}
 
 }

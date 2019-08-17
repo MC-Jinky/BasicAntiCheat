@@ -6,8 +6,14 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import me.jinky.checks.Check;
 import me.jinky.checks.CheckResult;
 import me.jinky.logger.User;
+import me.jinky.util.UtilMath;
 
 public class ReachCheck extends Check {
+
+	@Override
+	public String getName() {
+		return "ReachCheck";
+	}
 
 	@Override
 	public String getEventCall() {
@@ -25,9 +31,9 @@ public class ReachCheck extends Check {
 
 		}
 		if (range > 5.98) {
-			return new CheckResult("Reach", false);
+			return new CheckResult("Combat Reach", false, "hit at a range of " + UtilMath.trim(2, range));
 		}
-		return new CheckResult("Reach", true);
+		return new CheckResult("Combat Reach", true, "pass");
 	}
 
 }
