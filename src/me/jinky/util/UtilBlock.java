@@ -42,6 +42,17 @@ public class UtilBlock {
 
 	}
 
+	public static boolean isHoveringOverWater(Location player, int blocks) {
+		for (int i = player.getBlockY(); i > player.getBlockY() - blocks; i--) {
+			Block newloc = (new Location(player.getWorld(), player.getBlockX(), i, player.getBlockZ())).getBlock();
+			if (newloc.getType() != Material.AIR) {
+				return newloc.isLiquid();
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean isSwimming(Player p) {
 		if (p.isSwimming()) {
 			return true;

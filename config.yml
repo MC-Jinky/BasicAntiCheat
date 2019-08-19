@@ -47,7 +47,9 @@ Impossible Place-punish-count: 10
 Fast Place-punish-count: 10
 Fast Break-punish-count: 10
 XRay-punish-count: 8
-Anti-Cactus-punish-count: 14
-Anti-BerryBush-punish-count: 14
-MorePackets (Timer)-punish-count: 35
-MorePackets (Nuker)-punish-count: 75
+Anti-Cactus-punish-count: 9
+Anti-BerryBush-punish-count: 9
+MorePackets (Timer)-punish-count: 12
+MorePackets (Nuker)-punish-count: 50
+Criticals-punish-count: 7
+Step-punish-count: 5

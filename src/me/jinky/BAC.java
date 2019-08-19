@@ -23,21 +23,21 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import me.jinky.checks.Check;
-import me.jinky.checks.blocks.BreakCheck;
-import me.jinky.checks.blocks.PlaceCheck;
+import me.jinky.checks.combat.CriticalCheck;
 import me.jinky.checks.combat.KillAuraCheck;
 import me.jinky.checks.combat.MultiAuraCheck;
 import me.jinky.checks.combat.ReachCheck;
-import me.jinky.checks.flight.BoatCheck;
-import me.jinky.checks.flight.FloatCheck;
-import me.jinky.checks.flight.HoverCheck;
-import me.jinky.checks.flight.RiseCheck;
-import me.jinky.checks.flight.SmartFlightCheck;
-import me.jinky.checks.flight.WaterCheck;
+import me.jinky.checks.movement.BoatCheck;
 import me.jinky.checks.movement.EntitySpeedCheck;
+import me.jinky.checks.movement.FloatCheck;
+import me.jinky.checks.movement.HoverCheck;
+import me.jinky.checks.movement.SmartFlightCheck;
 import me.jinky.checks.movement.SmartSpeedCheck;
 import me.jinky.checks.movement.SpeedCheck;
+import me.jinky.checks.movement.WaterCheck;
 import me.jinky.checks.world.AntiCactusBerryCheck;
+import me.jinky.checks.world.BreakCheck;
+import me.jinky.checks.world.PlaceCheck;
 import me.jinky.checks.world.XRayCheck;
 import me.jinky.command.BACCmd;
 import me.jinky.fwk.CommandFramework;
@@ -49,6 +49,7 @@ import me.jinky.handlers.MovementHandler;
 import me.jinky.logger.PlayerLogger;
 import me.jinky.logger.User;
 import me.jinky.util.UtilMath;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class BAC extends JavaPlugin implements Listener {
 
@@ -96,12 +97,12 @@ public class BAC extends JavaPlugin implements Listener {
 			this.registerCheck(new BoatCheck());
 			this.registerCheck(new WaterCheck());
 			this.registerCheck(new HoverCheck());
-			this.registerCheck(new RiseCheck());
 			this.registerCheck(new FloatCheck());
 			this.registerCheck(new ReachCheck());
 			this.registerCheck(new EntitySpeedCheck());
 			this.registerCheck(new XRayCheck());
 			this.registerCheck(new AntiCactusBerryCheck());
+			this.registerCheck(new CriticalCheck());
 		}, 100L);
 
 	}
@@ -140,7 +141,7 @@ public class BAC extends JavaPlugin implements Listener {
 
 	public void sendMessage(Player p, String msg, Boolean actionbar) {
 		if (actionbar) {
-			p.sendActionBar(Settings.PREFIX + " " + msg);
+			p.spigot().sendMessage(new TextComponent(Settings.PREFIX + " " + msg));
 		} else {
 			p.sendMessage(Settings.PREFIX + " " + msg);
 		}
@@ -279,16 +280,6 @@ public class BAC extends JavaPlugin implements Listener {
 			return false;
 		}
 		this.getUser(p).updateLastOffense();
-		if (Settings.CANCEL_ON_OFFENSE) {
-			EXEMPTHANDLER.addExemptionBlock(p, 100);
-			if (detector.equalsIgnoreCase("Anti-Cactus") || detector.equalsIgnoreCase("Anti-BerryBush")) {
-				p.damage(0.5D);
-			} else if (detector.equalsIgnoreCase("WaterWalk")) {
-				p.teleport(p.getLocation().add(0, -0.5, 0));
-			} else {
-				p.teleport(this.getUser(p).LastRegularLocation());
-			}
-		}
 
 		int ping = 0;
 
@@ -314,6 +305,18 @@ public class BAC extends JavaPlugin implements Listener {
 		}
 		if (Count <= 2) {
 			return false;
+		}
+		if (Settings.CANCEL_ON_OFFENSE) {
+			EXEMPTHANDLER.addExemptionBlock(p, 100);
+			if (detector.equalsIgnoreCase("Anti-Cactus") || detector.equalsIgnoreCase("Anti-BerryBush")) {
+				p.damage(0.5D);
+			} else if (detector.equalsIgnoreCase("WaterWalk")) {
+				p.teleport(p.getLocation().add(0, -0.5, 0));
+			} else if (detector.equalsIgnoreCase("Criticals")) {
+				// Do nothing, CriticalCheck.java cancels on its own if enabled.
+			} else {
+				p.teleport(this.getUser(p).LastRegularLocation());
+			}
 		}
 		CStatsHandler.OC++;
 		if (!CStatsHandler.CC.containsKey(detector)) {

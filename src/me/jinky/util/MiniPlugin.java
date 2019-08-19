@@ -47,12 +47,9 @@ public abstract class MiniPlugin implements Listener {
 	}
 
 	public final void onEnable() {
-		addCommands();
-		log("§aEnabled Module: " + this.getName());
 	}
 
 	public final void onDisable() {
-		log("§cDisabled Module: " + this.getName());
 	}
 
 	public void addCommands() {

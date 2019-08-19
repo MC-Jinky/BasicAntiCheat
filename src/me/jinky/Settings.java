@@ -117,6 +117,8 @@ public class Settings {
 		checks.add("Anti-BerryBush");
 		checks.add("MorePackets (Timer)");
 		checks.add("MorePackets (Nuker)");
+		checks.add("Criticals");
+		checks.add("Step");
 		for (String s : checks) {
 			if (!cf.contains(s + "-punish-count")) {
 				ALL_CHECKS.put(s, 50000);

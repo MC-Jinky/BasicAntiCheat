@@ -1,4 +1,4 @@
-package me.jinky.checks.blocks;
+package me.jinky.checks.world;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,7 +106,7 @@ public class BreakCheck extends Check {
 				return new CheckResult("Impossible Break", true, "Efficiency Effect");
 			}
 			Location placed = event.getBlock().getLocation();
-			Block target = p.getTargetBlock(15);
+			Block target = p.getTargetBlockExact(15);
 			Boolean call = false;
 			if (placed.distance(target.getLocation()) > 4.7) {
 				call = true;

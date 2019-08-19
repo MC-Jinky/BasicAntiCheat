@@ -1,4 +1,4 @@
-package me.jinky.checks.blocks;
+package me.jinky.checks.world;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,12 +64,12 @@ public class PlaceCheck extends Check {
 		}
 		Location placed = event.getBlockPlaced().getLocation();
 		Boolean call = false;
-		if (placed.distance(p.getTargetBlock(10).getLocation()) > 4.7) {
+		if (placed.distance(p.getTargetBlockExact(15).getLocation()) > 4.7) {
 			call = true;
 		}
 		if (call) {
 			return new CheckResult("Impossible Place", false,
-					"Placed " + UtilMath.trim(1, placed.distance(p.getTargetBlock(10).getLocation()))
+					"Placed " + UtilMath.trim(1, placed.distance(p.getTargetBlockExact(15).getLocation()))
 							+ " blocks away from crosshair");
 		} else {
 			return new CheckResult("Impossible Place", true, "Pass");

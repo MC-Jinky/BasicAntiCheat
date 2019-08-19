@@ -1,4 +1,4 @@
-package me.jinky.checks.flight;
+package me.jinky.checks.movement;
 
 import java.util.HashMap;
 import java.util.Map;
