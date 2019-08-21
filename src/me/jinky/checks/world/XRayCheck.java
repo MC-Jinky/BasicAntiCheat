@@ -50,6 +50,20 @@ public class XRayCheck extends Check {
 			}
 			PlayerMoveEvent e = (PlayerMoveEvent) ev;
 			Long math = System.currentTimeMillis() - lastcheck.get(p);
+			if (e.getTo().getWorld() != e.getFrom().getWorld()) {
+				if (ghostblocks.containsKey(p)) {
+					for (Block b : ghostblocks.get(p).keySet()) {
+						b.setType(Material.STONE);
+					}
+					ghostblocks.remove(p);
+				}
+				if (ghostblocks_closecount.containsKey(p))
+					ghostblocks_closecount.remove(p);
+				if (ghostblocks_lastcheckloc.containsKey(p))
+					ghostblocks_lastcheckloc.remove(p);
+				lastcheck.put(p, System.currentTimeMillis());
+				return new CheckResult("XRay", true, "WorldChange");
+			}
 			if (math > 1750 && ghostblocks_closecount.containsKey(p) && e.getFrom().distance(e.getTo()) > 0.1) {
 				Iterator<Block> i = ghostblocks_closecount.get(p).keySet().iterator();
 				List<Block> remove = new ArrayList<Block>();
@@ -115,7 +129,7 @@ public class XRayCheck extends Check {
 						if (i > 4) {
 							if (UtilBlock.xraysafe(target, target.getType()).size() == 0) {
 								g++;
-								if (g == 2) {
+								if (g == 2 && target.getLocation().getWorld().equals(p.getLocation().getWorld())) {
 									target.setType(e.getBlock().getType());
 									ghostblocks.get(p).put(target, System.currentTimeMillis());
 									ghostblocks_closecount.get(p).put(target, 4);
