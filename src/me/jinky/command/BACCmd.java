@@ -8,6 +8,7 @@ import me.jinky.Lag;
 import me.jinky.Settings;
 import me.jinky.fwk.Command;
 import me.jinky.fwk.CommandArgs;
+import me.jinky.handlers.CStatsHandler;
 import me.jinky.util.UtilMath;
 import me.jinky.util.UtilTime;
 
@@ -85,6 +86,10 @@ public class BACCmd {
 				bac.sendMessage(p, Settings.VARIABLE_COLOR + "/BAC tac - §cThis will disable/enable the anticheat.",
 						false);
 
+			return;
+		}
+		if (args[0].equalsIgnoreCase("statskey") && p.hasPermission("bac.statskey")) {
+			bac.sendMessage(p, "Statistics Key: " + CStatsHandler.ID, false);
 			return;
 		}
 		if (args[0].equalsIgnoreCase("info") && p.hasPermission("bac.info")) {

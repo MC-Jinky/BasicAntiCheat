@@ -71,7 +71,7 @@ public class PlayerLogger extends MiniPlugin {
 		} else {
 			SWPS.put(p, SWPS.get(p) + 1);
 		}
-		if (SWPS.get(p) > 35) {
+		if (SWPS.get(p) > 200) {
 			this.getPlugin().addSuspicion(p, "MorePackets (Timer)");
 		}
 	}
@@ -90,7 +90,7 @@ public class PlayerLogger extends MiniPlugin {
 		} else {
 			BCPS.put(p, BCPS.get(p) + 1);
 		}
-		if (BCPS.get(p) > 100) {
+		if (BCPS.get(p) > 400) {
 			this.getPlugin().addSuspicion(p, "MorePackets (Nuker)");
 		}
 	}

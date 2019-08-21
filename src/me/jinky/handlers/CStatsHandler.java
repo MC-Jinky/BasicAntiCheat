@@ -147,48 +147,51 @@ public class CStatsHandler extends MiniPlugin {
 	}
 
 	private void setupCStats() {
-		File oldstats = new File(this.getPlugin().getDataFolder() + "/statistics.key");
-		if (oldstats.exists()) {
-			oldstats.delete();
-		}
-		String ip = Bukkit.getServer().getIp();
-		if (ip == null || ip.length() == 0) {
-			ip = "127.0.0.1";
-		}
-		String id = "0";
-		String webreq = "http://cenix.cf/IPFetch.php?A=" + this.getPlugin().getCSADDRESS() + "&i=1";
-		this.getPlugin().console("§aInitializing Cenix Stats...");
-
-		try {
-
-			URL url = new URL(webreq);
-			Scanner s = new Scanner(url.openStream());
-			id = s.next();
-			if (id.startsWith("Err.")) {
-				this.getPlugin().console("§cFailed to initialize BACStats. The information provided was incorrect.");
-				this.getPlugin().console(
-						"§eThis could be caused by using the plugin locally, or due to an incorrect server.properties configuration.");
-				this.getPlugin().console("§6BACStats will not be used.");
-			} else {
-				this.getPlugin().console("§aBACStats loaded!");
-				ID = id;
+		Bukkit.getScheduler().runTaskAsynchronously(this.getPlugin(), () -> {
+			File oldstats = new File(this.getPlugin().getDataFolder() + "/statistics.key");
+			if (oldstats.exists()) {
+				oldstats.delete();
 			}
-			s.close();
-		} catch (Exception e) {
-			this.getPlugin()
-					.console("§cFailed to initialize BACStats. This might be blocked by your hosting provider.");
-		}
-
-		File f = new File(this.getPlugin().getDataFolder() + "/statistics.key");
-		try {
-			if (!f.exists()) {
-				f.createNewFile();
+			String ip = Bukkit.getServer().getIp();
+			if (ip == null || ip.length() == 0) {
+				ip = "127.0.0.1";
 			}
-			PrintWriter writer = new PrintWriter(f, "UTF-8");
-			writer.println(id);
-			writer.close();
-		} catch (IOException e1) {
-			this.getPlugin().console("§cCouldn't save key, BACStats will be disabled!");
-		}
+			String id = "0";
+			String webreq = "http://cenix.cf/IPFetch.php?A=" + this.getPlugin().getCSADDRESS() + "&i=1";
+			this.getPlugin().console("§aInitializing Cenix Stats...");
+
+			try {
+
+				URL url = new URL(webreq);
+				Scanner s = new Scanner(url.openStream());
+				id = s.next();
+				if (id.startsWith("Err.")) {
+					this.getPlugin()
+							.console("§cFailed to initialize BACStats. The information provided was incorrect.");
+					this.getPlugin().console(
+							"§eThis could be caused by using the plugin locally, or due to an incorrect server.properties configuration.");
+					this.getPlugin().console("§6BACStats will not be used.");
+				} else {
+					this.getPlugin().console("§aBACStats loaded!");
+					ID = id;
+				}
+				s.close();
+			} catch (Exception e) {
+				this.getPlugin()
+						.console("§cFailed to initialize BACStats. This might be blocked by your hosting provider.");
+			}
+
+			File f = new File(this.getPlugin().getDataFolder() + "/statistics.key");
+			try {
+				if (!f.exists()) {
+					f.createNewFile();
+				}
+				PrintWriter writer = new PrintWriter(f, "UTF-8");
+				writer.println(id);
+				writer.close();
+			} catch (IOException e1) {
+				this.getPlugin().console("§cCouldn't save key, BACStats will be disabled!");
+			}
+		});
 	}
 }

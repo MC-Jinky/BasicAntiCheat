@@ -1,6 +1,7 @@
 package me.jinky;
 
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -77,7 +78,6 @@ public class BAC extends JavaPlugin implements Listener {
 
 		DAMAGEHANDLER = new DamageHandler(this);
 		EXEMPTHANDLER = new ExemptHandler(this);
-		CSTATSHANDLER = new CStatsHandler(this);
 		new MovementHandler(this);
 		new BlockHandler(this);
 		new PlayerLogger(this);
@@ -103,8 +103,38 @@ public class BAC extends JavaPlugin implements Listener {
 			this.registerCheck(new XRayCheck());
 			this.registerCheck(new AntiCactusBerryCheck());
 			this.registerCheck(new CriticalCheck());
+			CSTATSHANDLER = new CStatsHandler(this);
 		}, 100L);
 
+		Runtime runtime = Runtime.getRuntime();
+		long maxMemory = runtime.maxMemory();
+		long freeMemory = runtime.freeMemory();
+		long totalMemory = runtime.totalMemory();
+		cs("System Hardware Information:");
+		cs("Reserved used RAM: " + readableBytes(totalMemory - freeMemory));
+		cs("Reserved free RAM: " + readableBytes(freeMemory));
+		cs("Reserved RAM: " + readableBytes(totalMemory));
+		cs("Max RAM: " + readableBytes(maxMemory));
+		cs("OS: " + ManagementFactory.getOperatingSystemMXBean().getName());
+		cs("OS Arch: " + ManagementFactory.getOperatingSystemMXBean().getArch());
+		cs("Avail. Cores: " + ManagementFactory.getOperatingSystemMXBean().getAvailableProcessors());
+		cs("Sys Load Avg: " + ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
+		cs("Thread Count: " + ManagementFactory.getThreadMXBean().getThreadCount());
+	}
+
+	private void cs(String msg) {
+		this.console("§f" + msg.replaceAll(": ", ": §e"));
+	}
+
+	public static String readableBytes(long bytes) {
+		int unit = 1024;
+		if (bytes < unit) {
+			return bytes + " B";
+		}
+
+		int exp = (int) (Math.log(bytes) / Math.log(unit));
+		String pre = "kMGTPE".charAt(exp - 1) + "i";
+		return String.format("%.2f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
 	public String getUUID(String player) {

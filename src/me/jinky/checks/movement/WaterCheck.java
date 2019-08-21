@@ -31,6 +31,9 @@ public class WaterCheck extends Check {
 	@Override
 	public CheckResult performCheck(User u, Event ev) {
 		Player p = u.getPlayer();
+		if (p.isFlying() || p.isInsideVehicle()) {
+			return new CheckResult("WaterWalk", true, "flying above water");
+		}
 		if (!lastcheck.containsKey(p)) {
 			lastcheck.put(p, 0L);
 			count.put(p, 0);
