@@ -27,7 +27,11 @@ public class Lag implements Runnable {
 
 	public static double getNiceTPS() {
 		try {
-			return UtilMath.trim(2, getTPS());
+			double m = UtilMath.trim(2, getTPS());
+			if (m > 20.0) {
+				m = 20.0;
+			}
+			return m;
 		} catch (Exception e) {
 			return getTPS();
 		}
