@@ -1,7 +1,6 @@
 package me.jinky;
 
 import java.io.InputStreamReader;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -106,24 +105,6 @@ public class BAC extends JavaPlugin implements Listener {
 			CSTATSHANDLER = new CStatsHandler(this);
 		}, 100L);
 
-		Runtime runtime = Runtime.getRuntime();
-		long maxMemory = runtime.maxMemory();
-		long freeMemory = runtime.freeMemory();
-		long totalMemory = runtime.totalMemory();
-		cs("System Hardware Information:");
-		cs("Reserved used RAM: " + readableBytes(totalMemory - freeMemory));
-		cs("Reserved free RAM: " + readableBytes(freeMemory));
-		cs("Reserved RAM: " + readableBytes(totalMemory));
-		cs("Max RAM: " + readableBytes(maxMemory));
-		cs("OS: " + ManagementFactory.getOperatingSystemMXBean().getName());
-		cs("OS Arch: " + ManagementFactory.getOperatingSystemMXBean().getArch());
-		cs("Avail. Cores: " + ManagementFactory.getOperatingSystemMXBean().getAvailableProcessors());
-		cs("Sys Load Avg: " + ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
-		cs("Thread Count: " + ManagementFactory.getThreadMXBean().getThreadCount());
-	}
-
-	private void cs(String msg) {
-		this.console("§f" + msg.replaceAll(": ", ": §e"));
 	}
 
 	public static String readableBytes(long bytes) {
@@ -342,8 +323,9 @@ public class BAC extends JavaPlugin implements Listener {
 				p.damage(0.5D);
 			} else if (detector.equalsIgnoreCase("WaterWalk")) {
 				p.teleport(p.getLocation().add(0, -0.5, 0));
-			} else if (detector.equalsIgnoreCase("Criticals")) {
+			} else if (detector.equalsIgnoreCase("Criticals") || detector.equalsIgnoreCase("XRay")) {
 				// Do nothing, CriticalCheck.java cancels on its own if enabled.
+				// Do nothing, XRayCheck.java, let it just continue normally, it's in heavy beta
 			} else {
 				p.teleport(this.getUser(p).LastRegularLocation());
 			}

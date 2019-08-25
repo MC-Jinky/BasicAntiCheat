@@ -27,8 +27,8 @@ no-punish-cmd:
 # [USERNAME], [UUID], [DISPLAYNAME], [OFFENSES]
 # Color codes are supported.
 
-punish: false
-punish-command: 'kick [USERNAME] [OFFENSES]'
+punish: true
+punish-command: 'minecraft:kick [USERNAME] [Basic Anti-Cheat] Cheats detected.'
 
 #This is the punish offense count for each individual check, if this isn't set, it will default to 12 for the check that doesn't exist.
 
