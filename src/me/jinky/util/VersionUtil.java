@@ -17,6 +17,8 @@ public class VersionUtil {
 	}
 
 	public static boolean isSwimming(Player p) {
+		if (p.getLocation().getBlock().getType() == Material.WATER)
+			return true;
 		if (p.isSwimming())
 			return true;
 		if (UtilBlock.getSurroundingMat(p.getLocation().getBlock(), true).contains(Material.WATER))
