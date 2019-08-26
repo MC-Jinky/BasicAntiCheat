@@ -1,6 +1,7 @@
 package me.jinky.util;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -13,6 +14,15 @@ public class VersionUtil {
 
 	public static boolean isFlying(Player p) {
 		return p.isFlying() || p.isGliding() || p.hasPotionEffect(PotionEffectType.LEVITATION);
+	}
+
+	public static boolean isSwimming(Player p) {
+		if (p.isSwimming())
+			return true;
+		if (UtilBlock.getSurroundingMat(p.getLocation().getBlock(), true).contains(Material.WATER))
+			return true;
+
+		return false;
 	}
 
 	@SuppressWarnings("deprecation")

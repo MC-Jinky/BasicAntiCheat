@@ -29,6 +29,7 @@ import me.jinky.checks.combat.MultiAuraCheck;
 import me.jinky.checks.combat.ReachCheck;
 import me.jinky.checks.movement.BoatCheck;
 import me.jinky.checks.movement.EntitySpeedCheck;
+import me.jinky.checks.movement.FlightFCheck;
 import me.jinky.checks.movement.FloatCheck;
 import me.jinky.checks.movement.HoverCheck;
 import me.jinky.checks.movement.SmartFlightCheck;
@@ -102,6 +103,7 @@ public class BAC extends JavaPlugin implements Listener {
 			this.registerCheck(new XRayCheck());
 			this.registerCheck(new AntiCactusBerryCheck());
 			this.registerCheck(new CriticalCheck());
+			this.registerCheck(new FlightFCheck());
 			CSTATSHANDLER = new CStatsHandler(this);
 		}, 100L);
 

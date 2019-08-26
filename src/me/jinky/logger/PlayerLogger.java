@@ -24,6 +24,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.util.Vector;
 
@@ -48,6 +49,7 @@ public class PlayerLogger extends MiniPlugin {
 	private static Map<Player, Long> LastOffense = new HashMap<Player, Long>();
 	private static Map<Player, Integer> BCPS = new HashMap<Player, Integer>();
 	private static Map<Player, Integer> SWPS = new HashMap<Player, Integer>();
+	private static Map<Player, Long> lastVelocity = new HashMap<Player, Long>();
 
 	private static PlayerLogger instance = null;
 
@@ -58,6 +60,18 @@ public class PlayerLogger extends MiniPlugin {
 			BCPS.clear();
 			SWPS.clear();
 		}, 20L, 20L);
+	}
+
+	@EventHandler
+	public void onEvent(PlayerVelocityEvent event) {
+		lastVelocity.put(event.getPlayer(), System.currentTimeMillis());
+	}
+
+	public long getLastVelocity(Player p) {
+		if (lastVelocity.containsKey(p))
+			return lastVelocity.get(p);
+
+		return 0L;
 	}
 
 	@EventHandler

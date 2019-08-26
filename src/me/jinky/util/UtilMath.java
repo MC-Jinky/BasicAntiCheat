@@ -28,6 +28,13 @@ public class UtilMath {
 		return low + (int) (Math.random() * ((high - low) + 1));
 	}
 
+	public static double getHorizontalDistance(Location to, Location from) {
+		double x = Math.abs(Math.abs(to.getX()) - Math.abs(from.getX()));
+		double z = Math.abs(Math.abs(to.getZ()) - Math.abs(from.getZ()));
+
+		return Math.sqrt(x * x + z * z);
+	}
+
 	public static double offset2d(Entity a, Entity b) {
 		return offset2d(a.getLocation().toVector(), b.getLocation().toVector());
 	}
