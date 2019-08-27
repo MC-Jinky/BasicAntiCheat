@@ -2,6 +2,7 @@ package me.jinky.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -18,6 +19,8 @@ public class VersionUtil {
 
 	public static boolean isSwimming(Player p) {
 		if (p.getLocation().getBlock().getType() == Material.WATER)
+			return true;
+		if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.WATER)
 			return true;
 		if (p.isSwimming())
 			return true;

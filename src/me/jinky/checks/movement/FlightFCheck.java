@@ -44,6 +44,9 @@ public class FlightFCheck extends Check {
 		if (from == null)
 			return new CheckResult("Flight", true, "not enough data");
 
+		if (u.isBouncing()) {
+			return new CheckResult("Flight", true, "bouncing");
+		}
 		double movementSpeed = UtilMath.getHorizontalDistance(to, from);
 		if (!ls.containsKey(u.getPlayer())) {
 			ls.put(u.getPlayer(), movementSpeed);

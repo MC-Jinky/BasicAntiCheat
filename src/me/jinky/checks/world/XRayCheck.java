@@ -75,6 +75,9 @@ public class XRayCheck extends Check {
 					}
 					Integer count = ghostblocks_closecount.get(p).get(b);
 
+					if (b.getLocation().getWorld() != e.getTo().getWorld()) {
+						return new CheckResult("XRay", true, "WorldChange");
+					}
 					if (e.getTo().distance(b.getLocation()) < ghostblocks_lastcheckloc.get(p).get(b)) {
 						count++;
 						ghostblocks_closecount.get(p).put(b, count);

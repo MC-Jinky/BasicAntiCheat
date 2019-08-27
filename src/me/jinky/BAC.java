@@ -85,6 +85,7 @@ public class BAC extends JavaPlugin implements Listener {
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		this.getServer().getPluginManager().registerEvents(this, this);
 		Settings.loadConfig();
+		BungeeHandler.load(this);
 
 		Bukkit.getScheduler().runTaskLater(this, () -> {
 			this.registerCheck(new SpeedCheck());
@@ -251,7 +252,11 @@ public class BAC extends JavaPlugin implements Listener {
 						m = m.replaceAll("\\[PID\\]", pid);
 						final String me = m;
 						Bukkit.getScheduler().runTask(BAC.getBAC(), () -> {
-							Bukkit.getServer().dispatchCommand(getServer().getConsoleSender(), me);
+							if (!BungeeHandler.handleBungeePunish(me)) {
+								Bukkit.getServer().dispatchCommand(getServer().getConsoleSender(), me);
+							} else {
+								console("Punishment request sent to Bungee.");
+							}
 						});
 					}
 				});
@@ -376,12 +381,13 @@ public class BAC extends JavaPlugin implements Listener {
 		m = m.replaceAll("\\[Z\\]", UtilMath.trim(2, p.getLocation().getZ()) + "");
 		m = m.replaceAll("\\[WORLD\\]", p.getWorld().getName());
 
-		broadcast(p, m);
+		broadcast(m);
+		BungeeHandler.handleCrossAlert(m);
 
 		return Settings.CANCEL_ON_OFFENSE;
 	}
 
-	public void broadcast(Player p, String... msgs) {
+	public void broadcast(String... msgs) {
 		for (String m : msgs) {
 			console(m);
 		}
