@@ -108,8 +108,12 @@ public class BreakCheck extends Check {
 			Location placed = event.getBlock().getLocation();
 			Block target = p.getTargetBlockExact(15);
 			Boolean call = false;
-			if (placed.distance(target.getLocation()) > 4.7) {
-				call = true;
+			try {
+				if (placed.distance(target.getLocation()) > 4.7) {
+					call = true;
+				}
+			} catch (Exception ef) {
+				call = false;
 			}
 			if (event.getBlock().getType() == Material.NETHERRACK
 					|| event.getBlock().getType().toString().contains("BAMBOO")) {

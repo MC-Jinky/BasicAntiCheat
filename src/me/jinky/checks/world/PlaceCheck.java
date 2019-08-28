@@ -64,8 +64,12 @@ public class PlaceCheck extends Check {
 		}
 		Location placed = event.getBlockPlaced().getLocation();
 		Boolean call = false;
-		if (placed.distance(p.getTargetBlockExact(15).getLocation()) > 4.7) {
-			call = true;
+		try {
+			if (placed.distance(p.getTargetBlockExact(15).getLocation()) > 4.7) {
+				call = true;
+			}
+		} catch (Exception ef) {
+			call = false;
 		}
 		if (call) {
 			return new CheckResult("Impossible Place", false,
