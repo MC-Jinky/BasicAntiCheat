@@ -24,7 +24,7 @@ public class VersionUtil {
 			return true;
 		if (p.isSwimming())
 			return true;
-		if (UtilBlock.getSurroundingMat(p.getLocation().getBlock(), true).contains(Material.WATER))
+		if (p.getLocation().getBlock().getRelative(BlockFace.UP).getType() == Material.WATER)
 			return true;
 
 		return false;
