@@ -1,6 +1,5 @@
 package me.jinky.checks.movement;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -42,16 +41,7 @@ public class BoatCheck extends Check {
 				if (LastSafe != null) {
 					BAC.getBAC().EXEMPTHANDLER.addExemptionBlock(u.getPlayer(), 5);
 					Entity v = u.getVehicle();
-					u.eject();
-					u.teleport(LastSafe);
 					v.teleport(LastSafe);
-					Bukkit.getScheduler().runTaskLater(BAC.getBAC().getPlugin(), new Runnable() {
-						@SuppressWarnings("deprecation")
-						@Override
-						public void run() {
-							v.setPassenger(u.getPlayer());
-						}
-					}, 1L);
 				} else {
 					u.eject();
 				}

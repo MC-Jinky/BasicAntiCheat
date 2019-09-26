@@ -60,9 +60,11 @@ public class FlightFCheck extends Check {
 		}
 		double diff = Math.abs(movementSpeed - prediction);
 		List<Material> nearby = UtilBlock.getSurroundingMat(u.getBlock(), true);
-		if (!u.getPlayer().isOnGround() && !VersionUtil.isFlying(u.getPlayer()) && !nearby.contains(Material.LADDER)
-				&& !VersionUtil.isSwimming(u.getPlayer()) && to.getY() >= from.getY()
-				&& UtilTime.elapsed(PlayerLogger.getLogger().getLastVelocity(u.getPlayer()), 1000L)) {
+		if (u.getVehicle() == null && !u.getPlayer().isOnGround() && !VersionUtil.isFlying(u.getPlayer())
+				&& !nearby.contains(Material.LADDER) && !nearby.contains(Material.SCAFFOLDING)
+				&& !nearby.contains(Material.VINE) && !VersionUtil.isSwimming(u.getPlayer()) && to.getY() >= from.getY()
+				&& UtilTime.elapsed(PlayerLogger.getLogger().getLastVelocity(u.getPlayer()), 1000L)
+				&& !nearby.contains(Material.WATER)) {
 			if (diff > 0.025) {
 				if (vl++ > 7) {
 					return new CheckResult("Flight", false, "Type F");

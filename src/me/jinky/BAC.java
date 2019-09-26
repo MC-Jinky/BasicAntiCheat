@@ -324,7 +324,7 @@ public class BAC extends JavaPlugin implements Listener {
 		if (Count <= 2) {
 			return false;
 		}
-		if (Settings.CANCEL_ON_OFFENSE) {
+		if (Settings.CANCEL_ON_OFFENSE && p.getVehicle() == null) {
 			EXEMPTHANDLER.addExemptionBlock(p, 100);
 			if (detector.equalsIgnoreCase("Anti-Cactus") || detector.equalsIgnoreCase("Anti-BerryBush")) {
 				p.damage(0.5D);

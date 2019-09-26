@@ -10,6 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 
 import me.jinky.checks.Check;
@@ -53,35 +54,42 @@ public class KillAuraCheck extends Check {
 		if (p.isDead()) {
 			return new CheckResult("Impossible Fight", false, "player is dead");
 		}
+		if (ex.getEventName().equalsIgnoreCase("EntityDamageByEntityEvent")) {
+			EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) ex;
+			if (!(event.getDamager() instanceof Player)) {
+				return new CheckResult("Kill Aura", true, "not a player attacking");
+			}
+			if (event.getCause() == DamageCause.ENTITY_SWEEP_ATTACK) {
+				return new CheckResult("Kill Aura", true, "sweep attack");
+			}
 
-		EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) ex;
-		if (!(event.getDamager() instanceof Player)) {
-			return new CheckResult("Kill Aura", true, "not a player attacking");
-		}
-
-		Player entity1 = (Player) event.getDamager();
-		Entity entity2 = event.getEntity();
-		boolean lineOfSight = false;
-		Vector line = entity1.getLocation().toVector().clone().subtract(entity2.getLocation().toVector()).normalize();
-		Vector dirFacing = ((LivingEntity) entity2).getEyeLocation().getDirection().clone().normalize();
-		double angle = Math.acos(line.dot(dirFacing));
-		if (angle > 0.785398163) {
-			lineOfSight = false;
-		}
-		if (!lastloc.containsKey(p) || p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
-			return new CheckResult("Kill Aura", true, "move event didnt update, probably in creative mode.");
-		}
-		double oy = Math.abs(lastloc.get(p).getYaw());
-		double op = Math.abs(lastloc.get(p).getPitch());
-		double cy = Math.abs(p.getLocation().getYaw());
-		double cp = Math.abs(p.getLocation().getPitch());
-		boolean f_yaw = Math.abs(UtilMath.trim(1, cy - oy)) > 35;
-		boolean f_pitch = Math.abs(UtilMath.trim(1, cp - op)) > 35;
-		if (f_yaw || f_pitch) {
-			return new CheckResult("Kill Aura", false, "irregular head snapping");
-		}
-		if (lineOfSight) {
-			return new CheckResult("Kill Aura", false, "hit target not in sight");
+			Player entity1 = (Player) event.getDamager();
+			Entity entity2 = event.getEntity();
+			boolean lineOfSight = false;
+			Vector line = entity1.getLocation().toVector().clone().subtract(entity2.getLocation().toVector())
+					.normalize();
+			Vector dirFacing = ((LivingEntity) entity2).getEyeLocation().getDirection().clone().normalize();
+			double angle = Math.acos(line.dot(dirFacing));
+			if (angle > 0.785398163) {
+				lineOfSight = false;
+			}
+			if (!lastloc.containsKey(p) || p.getGameMode() == GameMode.CREATIVE
+					|| p.getGameMode() == GameMode.SPECTATOR) {
+				return new CheckResult("Kill Aura", true, "move event didnt update, probably in creative mode.");
+			}
+			double oy = Math.abs(lastloc.get(p).getYaw());
+			double op = Math.abs(lastloc.get(p).getPitch());
+			double cy = Math.abs(p.getLocation().getYaw());
+			double cp = Math.abs(p.getLocation().getPitch());
+			boolean f_yaw = Math.abs(UtilMath.trim(1, cy - oy)) > 35;
+			boolean f_pitch = Math.abs(UtilMath.trim(1, cp - op)) > 35;
+			if (f_yaw || f_pitch) {
+				return new CheckResult("Kill Aura", false, "irregular head snapping");
+			}
+			if (lineOfSight) {
+				return new CheckResult("Kill Aura", false, "hit target not in sight");
+			}
+			return new CheckResult("Kill Aura", true, "pass");
 		}
 		return new CheckResult("Kill Aura", true, "pass");
 	}

@@ -92,7 +92,9 @@ public class SmartFlightCheck extends Check {
 		}
 		if (gc.get(p) > 4 && inwater == false) {
 			gc.put(p, 0);
-			return new CheckResult("Glide/SlowFall", false, "slower than usual & steady rate");
+			if (!UtilBlock.climbable(p.getLocation().getBlock())) {
+				return new CheckResult("Glide/SlowFall", false, "slower than usual & steady rate");
+			}
 		}
 
 		if (sc.get(p) > 4 && inwater == false) {

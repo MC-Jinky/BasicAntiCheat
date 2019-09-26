@@ -39,7 +39,7 @@ public class EntitySpeedCheck extends Check {
 		}
 
 		JVelocity jv = new JVelocity(event.getFrom(), event.getTo());
-		double limit = 3.75;
+		double limit = 5.75;
 		if (jv.offset() > limit) {
 			return new CheckResult("Entity Speed", false,
 					"vehicle moved at " + UtilMath.trim(2, jv.offset()) + " speed, max possible is " + limit);
